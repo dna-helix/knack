@@ -28,6 +28,8 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   
   // Track if we've already counted this question as "seen" in global stats
   const hasRecordedSeenRef = useRef(false);
+  const [isEstimatedReading, setIsEstimatedReading] = useState(false);
+  const lastUpdateTimeRef = useRef<number>(0);
 
   const { recordQuestion } = useUserStats();
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -44,15 +46,47 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     return () => { stopActiveSpeech(); }
   }, [stopActiveSpeech]);
 
+  // Fallback for browsers that don't support onboundary (Mobile Brave/Chrome)
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    
+    if (status === 'reading') {
+      const startTime = Date.now();
+      lastUpdateTimeRef.current = startTime;
+      
+      interval = setInterval(() => {
+        const now = Date.now();
+        const elapsed = now - startTime;
+        
+        // If charIndex hasn't moved via onboundary and 1.2s has passed, or we're already estimating
+        if (charIndex === 0 && elapsed > 1200 && !isEstimatedReading) {
+          setIsEstimatedReading(true);
+        }
+        
+        if (isEstimatedReading) {
+          // Average NAQT reading speed: ~18 chars per second (approx 4 words/sec)
+          const charsToReveal = Math.floor(elapsed / 55); 
+          if (charsToReveal > charIndex) {
+            setCharIndex(Math.min(charsToReveal, currentQuestion.question.length));
+          }
+        }
+      }, 100);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [status, isEstimatedReading, charIndex, currentQuestion?.question.length]);
+
   const startReading = useCallback(() => {
     if (!currentQuestion) return;
     if (status === 'finished') return;
     
     stopActiveSpeech();
+    setIsEstimatedReading(false); // Reset fallback on fresh start
     
     const textToSpeak = currentQuestion.question.substring(charIndex);
     if (!textToSpeak.trim()) {
-      // If reading finishes naturally, mark as seen if not already
       if (!hasRecordedSeenRef.current) {
         recordQuestion('none', 0, currentQuestion.category, true);
         hasRecordedSeenRef.current = true;
@@ -67,6 +101,8 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     
     utterance.onboundary = (event) => {
       if (event.name === 'word') {
+        // If onboundary works, ensure we stop estimating and use real boundary
+        setIsEstimatedReading(false);
         setCharIndex(baseCharIndex + event.charIndex);
       }
     };
@@ -89,7 +125,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     };
     
     utterance.onend = () => {
-      clearInterval(keepAliveTimer);
+      if (keepAliveTimer) clearInterval(keepAliveTimer);
       if (utteranceRef.current === utterance) {
         setCharIndex(currentQuestion.question.length);
         setStatus('answering');
@@ -97,7 +133,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     };
     
     utterance.onerror = (e) => {
-      clearInterval(keepAliveTimer);
+      if (keepAliveTimer) clearInterval(keepAliveTimer);
       if (e.error !== 'canceled') {
         console.warn("Speech synthesis error:", e);
       }
@@ -120,7 +156,6 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   const submitAnswer = useCallback((userAnswer: string) => {
     const result = checkAnswer(userAnswer, currentQuestion.answer);
     
-    // Handle prompts: if the answer needs a prompt, switch to prompting status
     if (result.needsPrompt) {
       setPromptMessage(result.promptMessage);
       setStatus('prompting');
@@ -157,7 +192,6 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
         setStatus('idle');
         setSessionMetrics(m => ({ ...m, negs: m.negs + 1 }));
       } else {
-        // If they missed at the end, or missed a prompt
         setStatus('finished');
         setCharIndex(currentQuestion.question.length);
         setLastResult('none');
@@ -180,7 +214,8 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
       setStatus('idle');
       setLastResult(null);
       setPromptMessage('');
-      hasRecordedSeenRef.current = false; // Reset for next question
+      hasRecordedSeenRef.current = false;
+      setIsEstimatedReading(false);
       stopActiveSpeech();
       if (onIndexChange) onIndexChange(nextIdx);
     } else {

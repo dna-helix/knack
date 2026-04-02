@@ -1,10 +1,11 @@
 /** @type {import('next').NextConfig} */
+const isGithubPages = process.env.GITHUB_PAGES === 'true';
+
 const nextConfig = {
   output: 'export',
-  // Set the basePath for GitHub Pages (repo name)
-  basePath: '/knack',
-  // assetPrefix is also needed for some deployment scenarios
-  assetPrefix: '/knack',
+  // Only apply basePath/assetPrefix on GitHub Pages builds
+  basePath: isGithubPages ? '/knack' : '',
+  assetPrefix: isGithubPages ? '/knack' : '',
   images: {
     unoptimized: true,
   },

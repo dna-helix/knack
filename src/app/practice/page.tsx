@@ -371,7 +371,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
                       Pause
                   </button>
               )}
-               {(status === 'finished' || ((status === 'idle' || status === 'paused') && charIndex > 0)) && (
+              {status !== 'answering' && status !== 'prompting' && (
                 <button 
                   onClick={nextQuestion}
                   className="flex-1 border-2 border-primary text-primary hover:bg-primary/5 py-4 px-6 rounded-lg flex items-center justify-center gap-2 font-bold transition-all"
