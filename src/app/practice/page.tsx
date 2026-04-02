@@ -1,8 +1,8 @@
 "use client";
 
 import { useQuizSession } from "@/lib/useQuizSession";
-import { useState, useEffect, useRef, Suspense } from "react";
-import { useSearchParams } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense, useMemo } from "react";
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Question } from "@/lib/types";
 import Link from "next/link";
 import { useUserStats } from "@/lib/useUserStats";
@@ -49,6 +49,7 @@ function QuizLoader() {
 
 function QuizPageContent({ questions, packId, initialIndex }: { questions: Question[], packId: string, initialIndex: number }) {
   const { updatePackProgress } = useUserStats();
+  const router = useRouter();
   const {
     currentQuestion,
     charIndex,
@@ -64,6 +65,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
     buzz,
     submitAnswer,
     nextQuestion,
+    stopActiveSpeech,
   } = useQuizSession(questions, initialIndex, (idx) => updatePackProgress(packId, idx));
 
   const [answerInput, setAnswerInput] = useState("");
@@ -75,6 +77,16 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
   answerInputRef.current = answerInput;
   const submitAnswerRef = useRef(submitAnswer);
   submitAnswerRef.current = submitAnswer;
+
+  // ── Optimization: Pre-calculate question splits ──
+  const questionSplits = useMemo(() => {
+    if (!currentQuestion) return { power: "", rest: "" };
+    const words = currentQuestion.question.trim().split(/\s+/);
+    return {
+      power: words.slice(0, currentQuestion.power_index).join(" "),
+      rest: words.slice(currentQuestion.power_index).join(" ")
+    };
+  }, [currentQuestion]);
 
   // ── 10-second answer timer ──
   const ANSWER_TIME_LIMIT = 10;
@@ -160,12 +172,16 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
     if (result === 'incorrect') {
        setFeedback({ type: 'incorrect', message: `"${answerInput}" is incorrect.` });
     } else if (result === 'prompt') {
-       // Still prompting, keep the dialog open
        setFeedback({ type: 'prompt', message: promptMessage });
     } else {
        setFeedback(null);
     }
     setAnswerInput("");
+  };
+
+  const handleExit = () => {
+    stopActiveSpeech();
+    router.push('/');
   };
 
   const startListening = () => {
@@ -201,7 +217,6 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
     recognition.start();
   };
 
-  // Power / correct / incorrect message logic for the scoring update
   const getScoringMessage = () => {
     if (feedback?.type === 'incorrect') return feedback.message;
     if (lastResult === 'power') return 'POWER! ⚡ You buzzed in early and nailed it! +15 points.';
@@ -220,7 +235,6 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
 
   const isCorrectResult = lastResult === 'power' || lastResult === 'ten';
 
-  // Session accuracy
   const sessionAccuracy = sessionMetrics.questionsAnswered > 0
     ? Math.round(((sessionMetrics.powers + sessionMetrics.tens) / sessionMetrics.questionsAnswered) * 100)
     : 0;
@@ -228,10 +242,10 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
   return (
     <>
       <header className="bg-slate-50 dark:bg-slate-900 flex justify-between items-center px-4 md:px-6 py-4 w-full fixed top-0 z-50">
-        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <button onClick={handleExit} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <span className="material-symbols-outlined text-blue-950 dark:text-blue-100">menu_book</span>
           <h1 className="font-headline font-medium text-2xl tracking-tight text-blue-950 dark:text-blue-100">Knack</h1>
-        </Link>
+        </button>
         <div className="flex items-center gap-4 md:gap-6">
           <div className="hidden md:flex flex-col items-end">
             <span className="text-[10px] uppercase tracking-widest font-bold text-slate-500">Session Score</span>
@@ -267,7 +281,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
             <p className="font-headline text-xl md:text-4xl leading-relaxed text-primary-container italic opacity-90 mb-8 whitespace-pre-wrap">
               {status === 'finished' ? (
                 <>
-                  &quot;<strong className="font-extrabold underline decoration-primary/30 underline-offset-4">{currentQuestion.question.trim().split(/\s+/).slice(0, currentQuestion.power_index).join(" ")}</strong> {currentQuestion.question.trim().split(/\s+/).slice(currentQuestion.power_index).join(" ")}&quot;
+                  &quot;<strong className="font-extrabold underline decoration-primary/30 underline-offset-4">{questionSplits.power}</strong> {questionSplits.rest}&quot;
                 </>
               ) : revealedText.trim() ? (
                 <>&quot;{revealedText}&quot;</>
@@ -380,15 +394,14 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
                   Next Question
                 </button>
               )}
-              <Link href="/" className="flex-1 mt-auto border-2 border-outline-variant text-on-surface-variant hover:bg-surface-dim py-4 px-6 rounded-lg flex items-center justify-center gap-2 font-bold transition-all">
+              <button onClick={handleExit} className="flex-1 mt-auto border-2 border-outline-variant text-on-surface-variant hover:bg-surface-dim py-4 px-6 rounded-lg flex items-center justify-center gap-2 font-bold transition-all">
                 <span className="material-symbols-outlined">exit_to_app</span>
                 Save &amp; Exit
-              </Link>
+              </button>
             </div>
           </div>
         </section>
 
-        {/* Session Metrics Strip */}
         <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-3">
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Points</span>
@@ -413,7 +426,6 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
         </div>
       </main>
 
-      {/* Answer Overlay */}
       {status === 'answering' && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-surface scale-up-center rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col">
@@ -464,7 +476,6 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
         </div>
       )}
 
-      {/* Prompt Overlay */}
       {status === 'prompting' && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-surface scale-up-center rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col">

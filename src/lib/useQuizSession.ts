@@ -29,7 +29,6 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   // Track if we've already counted this question as "seen" in global stats
   const hasRecordedSeenRef = useRef(false);
   const [isEstimatedReading, setIsEstimatedReading] = useState(false);
-  const lastUpdateTimeRef = useRef<number>(0);
 
   const { recordQuestion } = useUserStats();
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -52,7 +51,6 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     
     if (status === 'reading') {
       const startTime = Date.now();
-      lastUpdateTimeRef.current = startTime;
       
       interval = setInterval(() => {
         const now = Date.now();
@@ -65,12 +63,13 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
         
         if (isEstimatedReading) {
           // Average NAQT reading speed: ~18 chars per second (approx 4 words/sec)
+          // Using 150ms interval to reduce render load on mobile
           const charsToReveal = Math.floor(elapsed / 55); 
           if (charsToReveal > charIndex) {
             setCharIndex(Math.min(charsToReveal, currentQuestion.question.length));
           }
         }
-      }, 100);
+      }, 150);
     }
     
     return () => {
@@ -140,7 +139,11 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     };
 
     setStatus('reading');
-    window.speechSynthesis.speak(utterance);
+    // Mobile fix: Always resume before speaking to ensure engine readiness
+    if (typeof window !== 'undefined') {
+        window.speechSynthesis.resume();
+        window.speechSynthesis.speak(utterance);
+    }
   }, [currentQuestion, charIndex, status, stopActiveSpeech, recordQuestion]);
 
   const pauseReading = useCallback(() => {
@@ -238,5 +241,6 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     buzz,
     submitAnswer,
     nextQuestion,
+    stopActiveSpeech,
   };
 }
