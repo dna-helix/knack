@@ -4,7 +4,6 @@ import { useQuizSession } from "@/lib/useQuizSession";
 import { useState, useEffect, useRef, Suspense, useMemo } from "react";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Question } from "@/lib/types";
-import Link from "next/link";
 import { useUserStats } from "@/lib/useUserStats";
 
 export default function QuizPage() {
