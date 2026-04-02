@@ -1,0 +1,16 @@
+[
+  {
+    "id": "q1",
+    "category": "Literature — European",
+    "question": "This author's protagonist, a disillusioned law student living in a cramped St. Petersburg apartment, justifies his heinous crime by comparing himself to Napoleon. After committing a double homicide with an axe, Rodion Raskolnikov finds himself haunted by guilt and the investigative prowess of Porfiry Petrovich. In the climax of this novel, the protagonist confesses to Sonya. For ten points, name this Russian novel by Fyodor Dostoevsky.",
+    "answer": "Crime and Punishment",
+    "power_index": 45
+  },
+  {
+    "id": "q2",
+    "category": "History — American",
+    "question": "This president's administration faced the XYZ Affair, leading to the Quasi-War with France. He signed the controversial Alien and Sedition Acts into law, which severely restricted public speech against the government. Before his presidency, he defended British soldiers involved in the Boston Massacre and served as the first Vice President under George Washington. For ten points, name this second President of the United States.",
+    "answer": "John Adams",
+    "power_index": 46
+  }
+]

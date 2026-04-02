@@ -1,0 +1,42 @@
+[
+  {
+    "id": "science_core",
+    "title": "Science Core",
+    "focus": "Science",
+    "questionCount": 50,
+    "difficulty": "Moderate",
+    "file": "science_core.json"
+  },
+  {
+    "id": "history_essentials",
+    "title": "History Essentials",
+    "focus": "History",
+    "questionCount": 50,
+    "difficulty": "Moderate",
+    "file": "history_essentials.json"
+  },
+  {
+    "id": "literature_classics",
+    "title": "Literature Classics",
+    "focus": "Literature",
+    "questionCount": 50,
+    "difficulty": "Moderate",
+    "file": "literature_classics.json"
+  },
+  {
+    "id": "mixed_general",
+    "title": "General Mixed Pack 1",
+    "focus": "Mixed",
+    "questionCount": 50,
+    "difficulty": "Moderate",
+    "file": "mixed_general.json"
+  },
+  {
+    "id": "mixed_advanced",
+    "title": "Advanced Mixed Pack 2",
+    "focus": "Mixed",
+    "questionCount": 50,
+    "difficulty": "Hard",
+    "file": "mixed_advanced.json"
+  }
+]

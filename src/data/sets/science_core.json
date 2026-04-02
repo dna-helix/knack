@@ -1,0 +1,402 @@
+[
+  {
+    "id": "62eeadce1032cda62a67738e",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "Lake Agassiz was located on this continent, and during the late Cretaceous, the Western Interior Seaway split this modern-day continent in half. The Juan de Fuca plate is subducting under the plate named for this continent. Due to deposits of shocked quartz and iridium, Luis Alvarez hypothesized that an impact at the  Chicxulub [“chik-su-loob”] crater near this continent led to the extinction of the dinosaurs. This continent is located at the northeast of the Ring of Fire. For 10 points, name this continent, home to the San Andreas fault, in which the Laramide orogeny created the Rocky Mountains.",
+    "answer": "<u>North America</u> [accept <u>North America</u>n plate]",
+    "power_index": 52
+  },
+  {
+    "id": "62fe9e9bd9499606df43a246",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "A quantity represented Z-star is divided by the square of the covalent radius in one definition of this quantity, and higher atomic values of this quantity make for better leaving groups in SN2 reactions. A ratio of electron densities is used in one definition of this quantity, which can be calculated as the mean of electron affinity and first ionization energy. Defined by Sanderson and Mulliken, this quantity increases as one moves toward the top right of the periodic table, and it is measured from 0.7 to 3.98 on a relative scale developed by Linus Pauling. Fluorine has the highest value of, for 10 points, what property that reflects an atom’s ability to attract electrons?",
+    "answer": "<u>electronegativity</u> [do not accept “electron affinity”]",
+    "power_index": 500
+  },
+  {
+    "id": "63e1c0eb32d1b824539f065f",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "A Reuleaux triangle is formed when three of these intersect. This object is formed by the parametric equations x equals a-cosine-t and y equals a-sine-t. This object is essentially a subtype of a certain conic section with an eccentricity of zero and two foci in the same location. A line linking two points on this shape is a chord, while a section of its only side is called an arc. For 10 points, name this shape, which has a radius, circumference, and center.",
+    "answer": "<u>circle</u> [prompt on <u>ellipse</u> or <u>oval</u>]",
+    "power_index": 500
+  },
+  {
+    "id": "639f7290036417219c961c9c",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "The quantum type of this quantity is named for Klaus von Klitzing, and it is applied in the quantum Hall effect. This quantity varies with temperature because of the Kondo effect, and at low temperature many materials see a drop in it according to the Anderson Model. This quantity’s inverse is measured in Siemens. After the turn on voltage,  this quantity is zero in an ideal diode. The component named for this quantity denotes its value through the use of colored bands. This quantity is added to reactance to yield impedance. For 10 points, name this opposition to the flow of current, equal to voltage divided by current according to Ohm’s law.",
+    "answer": "Electrical <u>resistance</u>",
+    "power_index": 59
+  },
+  {
+    "id": "62d98019f67c8a6f6e0af068",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "Specific cases of a theorem named for this mathematician were proven by Sophie Germain for her namesake primes. That theorem by this mathematician was proven in its general form using the modularity theorem. Carmichael numbers are counterexamples to this mathematician’s primality test. An equation formulated by this mathematician reduces to the  Pythagorean theorem when the exponent is two. Andrew Wiles proved a theorem by this mathematician that a to the n plus b to the n equals c to the n has no integer solutions for n greater than two. For ten points, name this mathematician with namesake “little” and “last” theorems.",
+    "answer": "Pierre de <u>Fermat</u>",
+    "power_index": 51
+  },
+  {
+    "id": "63080c092e43e86a5be1a901",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "This force names a polar brightening that occurs in rotating stars. This force disintegrates an object crossing the Roche limit. “Spaghettification” occurs due to a strong gradient of this force. The Nice (“nees”) model suggests the Late Heavy Bombardment was caused by bodies exerting this force’s namesake  “slingshot.” Overcoming the effects of this force is impossible inside the Schwarzchild radius, where escape velocity is greater than c. This inverse-square force moves planets in elliptical orbits. For 10 points, name this force that attracts masses to each other.",
+    "answer": "<u>gravity</u> [prompt on <u>tidal</u> force by asking “what force’s gradient creates a tidal force?”]",
+    "power_index": 47
+  },
+  {
+    "id": "62edc1ba974521c293e497cd",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "Kundt’s tube is an experimental apparatus for measuring this quantity, which appears uniquely low in the SOFAR channel. As values approach this quantity, the Prandtl-Glauert equation incorrectly predicts an infinite value for pressure due to a false assumption of linearity. The value of this quantity is given by the Newton-Laplace equation, which takes the square root of the  bulk modulus over the fluid density. Exceeding this quantity causes a shock wave, which produces a sonic boom. For 10 points, name this quantity equal to roughly 343 meters per second in air, a value referred to as Mach 1.",
+    "answer": "<u>speed of sound</u> [accept <u>Mach 1</u> before mention]",
+    "power_index": 58
+  },
+  {
+    "id": "62fdc240c76481561474a8db",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "One process named after these molecules can be initiated by morpholinos and sees Dicer cleave the ds type of these to form a RISC. Puromycin imitates one type of these molecules, which sometimes contain pseudouridine or inosine. They can form snRNPs [“snurps”] with proteins, and ones that catalyze reactions are called ribozymes.  Wobble base pairs can be found on one type of these molecules, which is typically depicted as a clover leaf and contains an anticodon. Another type of these molecules can be translated by ribosomes into proteins. For 10 points, name this nucleic acid with messenger and transfer types which contains uracil and is typically single-stranded, unlike DNA.",
+    "answer": "<u>ribonucleic acid</u> or <u>RNA</u> (accept <u>RNA</u> interference; prompt on <u>nucleic acid</u> but do not accept or prompt on “deoxyribonucleic acid” or “DNA” at any time)",
+    "power_index": 52
+  },
+  {
+    "id": "62e0012ddfc9de4846a503d7",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "Emphysema and COPD primarily affect these organs, which are surrounded by the pleural membrane. These organs secrete pulmonary surfactant to decrease the surface tension of their alveoli. A disease of these organs which is marked by spasms in  bronchi can be treated with an albuterol inhaler. For 10 points, name the primary organs affected by asthma, which expand and contract during breathing and provide oxygen to the body.",
+    "answer": "<u>lung</u>s",
+    "power_index": 38
+  },
+  {
+    "id": "63e31d9ebc8f282ed3d43f9e",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "De Finetti’s diagram contains a curved line representing this condition’s namesake frequency. This condition only occurs in the presence of random mating and no mutations, and it is mathematically represented by the equation p squared plus two p q plus q squared equals one. For 10 points, name this condition from population genetics in which allele and genotype frequencies in a stable population tend remain to constant, named for two scientists.",
+    "answer": "<u>Hardy-Weinberg</u> equilibrium [accept words like “principle” or “hypothesis” for “equilibrium”; accept names in either order]",
+    "power_index": 500
+  },
+  {
+    "id": "6302ccab3e73f93749c0d263",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "Classically, this quantity squared times charge squared is proportional to the radiative power of a point charge. This quantity for a reference frame must be zero for the frame to be inertial. Radius times angular frequency squared has units of this quantity, as does linear velocity squared divided by radius, for an object in  uniform circular motion. This quantity’s angular counterpart, symbolized alpha, multiplies the moment of inertia to give net torque. Analogously, this quantity times mass equals the net force. For 10 points, name this second derivative of position, and the first derivative of velocity, which is measured in meters per second squared.",
+    "answer": "<u>acceleration</u> [or <u>a</u>]",
+    "power_index": 54
+  },
+  {
+    "id": "62eeadce1032cda62a67750e",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "Fred Hoyle derisively gave this concept its current name, as he supported the steady-state theory instead. This concept, which was formulated by Georges Lemaitre, was expanded on by the Alpha Beta Gamma paper, written by Ralph Alpher and George Gamow. This event may have preceded a period of  inflation. The cosmic microwave background radiation was produced by this event, which occurred about 13.77 billion years ago. For 10 points, name this event during which the universe was formed from a cosmic singularity.",
+    "answer": "<u>Big Bang</u> Theory [prompt on descriptive answers like the <u>beginning of the universe</u>]",
+    "power_index": 48
+  },
+  {
+    "id": "689a0d6d2d8608f4ad85186c",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "At one end of these structures, the binding of calcium to synapto•tagmin 1 causes SNARE (“snare”) proteins to snap together. Solutions of sea water were used by Hodgkin and Huxley to study a giant one of these structures taken from a squid. These structures are insulated by glial (“GLEE-ul”) cells such as  oligo•dendro•cytes and Schwann cells. The resting  potential of the membranes of these structures is restored by the sodium-potassium pump. Saltatory conduction is enabled in these structures by nodes of Ranvier, which are gaps in their myelin (“MY-uh-lin”) sheaths. For 10 points, name these long projections of neurons along which action potentials travel.",
+    "answer": "<u>axon</u>s [accept giant <u>axon</u>s; prompt on <u>neuron</u>s or <u>nerve cell</u>s]",
+    "power_index": 59
+  },
+  {
+    "id": "64a0ccb31634f2d5eb7dedbd",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "Three of these devices of known strength are connected in a diamond configuration in a Wheatstone bridge. These devices are connected to an inductor and capacitor in an oscillating RLC circuit. Colored bands typically indicate the strength of these devices, which are represented by a  zigzag line in circuit diagrams. A common design of these devices consists of two wires extending from a small ceramic shell. For 10 points, what simple devices add resistance to a circuit?",
+    "answer": "<u>resistor</u>",
+    "power_index": 45
+  },
+  {
+    "id": "62f3ed6a57b6d50239b5258a",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "Differences in this quantity between two systems can be calculated by sampling each state using the Bennett acceptance ratio. That form of this quantity is equal to negative “k T times the logarithm of the partition function.” Surface tension equals the partial derivative of one type of this quantity with respect to area. This quantity is used to classify reactions as  spontaneous.Exergonic systems have negative values for this quantity. This quantity measures the maximum amount of work a system can do, and one form of it is equal to H minus TS. For 10 points, name this quantity, examples of which are named for Gibbs and Helmholtz.",
+    "answer": "<u>free energy</u> [accept Gibbs <u>free energy</u> and Helmholtz <u>free energy</u>; prompt on <u>energy</u>]",
+    "power_index": 61
+  },
+  {
+    "id": "657fd7d4de6df0163bbe39db",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "Although they are not fungi, some members of this group of organisms produce hydrogen anaerobically using an organelle derived from symbiotic bacteria, the hydrogenosome. Some of these organisms contain specialized organelles called glycosomes, whereas others have a flexible outer layer called a pellicle and have a macronucleus and micronucleus. Volvox is a biflagellate example of these organisms which also include diatoms, dinoflagellates, and slime molds. For 10 points, name these organisms which constitute a kingdom including algae and protozoans.",
+    "answer": "<u>Protist</u>s [accept <u>Protista</u>; accept <u>Protozoan</u>s before “Volvox”]",
+    "power_index": 500
+  },
+  {
+    "id": "63d895987a0d8ea074be7827",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "Whether or not this quantity for light in a dielectric varies inversely or directly with the index of refraction is the subject of the Minkowski-Abraham controversy. The energy of a photon equals the speed of light times this quantity. A formulation of the uncertainty principle states that this quantity and  position cannot be simultaneously known to exactness. Net force is equal to the time derivative of this quantity, while the change in it is given by impulse. All collisions proceed without a net change of this quantity, as it is a conserved quantity. For 10 points, name this physical quantity symbolized p and equal to the product of an object’s mass and velocity.",
+    "answer": "linear <u>momentum</u> (do not accept “angular momentum”)",
+    "power_index": 50
+  },
+  {
+    "id": "62eec0e50657a21915d9f646",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "For a periodic signal, the average of this quantity over the peak value is equal to pulse length over period, the duty cycles. In chain and belt drives, friction and wear in the chains and belts reduce the output for this quantity, resulting in a decreased mechanical advantage. In fluid systems, this quantity can be expressed as pressure times volumetric flow rate. It is equal to current squared times resistance, current times voltage, or work over time. For 10 points, name this quantity measured in watts.",
+    "answer": "<u>power</u> [prompt on <u>P</u>]",
+    "power_index": 500
+  },
+  {
+    "id": "62d98017f67c8a6f6e0a5910",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "It’s not the Aorta, but Tetralogy of Fallot is a combination of four congenital defects in this organ. This structure in fetuses contains the foramen ovale, and trabeculae carneae are muscular projections in this organ. Bachmann’s bundle and Purkinje fibers help this organ become  depolarized, and this structure’s bicuspid valve has two cusps while its semilunar valve has three. The venae cavae run through this organ, where arrhythmias occur, and it is divided into atria and ventricles. EKG’s monitor the electrical activity of, for ten points, what cardiovascular organ that pumps blood throughout the body?",
+    "answer": "human <u>heart</u>",
+    "power_index": 44
+  },
+  {
+    "id": "62f3114afad1e88c874a2e02",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "This park is the site of a former pluvial lake whose high point was determined by Eliot Blackwelder, Lake Manly. This park’s namesake region occupies a graben between the Amargosa and Panamint Ranges. The Racetrack Playa, a dry lake marked by ice- and wind-borne  “sailing stones,” is in this park. This park is served by the villages of Stovepipe Wells and Furnace Creek, where the highest ground temperature on Earth was recorded in 1972. For 10 points, name this national park in California known for its brutal heat.",
+    "answer": "<u>Death Valley</u> National Park SCOP A · Round 3 Page 4 of 4",
+    "power_index": 44
+  },
+  {
+    "id": "63506cec1b4438a94f2a2b29",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "The inverse of this quantity is the elastance. This quantity times resistance is equal to a circuit’s time constant. This quantity can be added for devices in parallel since it is linear. The Leyden Jar was a device associated with this quantity, and modern devices associated with this quantity use  dielectrics. This quantity is equal to charge divided by voltage and can be stored by devices with parallel plates. For 10 points, name this quantity that measures the ability of a body to store charge, measured in farads.",
+    "answer": "<u>capacitance</u>",
+    "power_index": 50
+  },
+  {
+    "id": "62eeadce1032cda62a67745b",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "An index named for an “oscillation” in this body of water is based on a pressure difference between a “subtropical high” and “subpolar low.” One region within this body of water, named for a brown seaweed, is the world’s only sea with no land boundaries. That region, the  Sargasso Sea, has its western boundary at a current that moves warm water across this ocean, the Gulf Stream. The mid-ocean ridge named for this ocean causes volcanic activity in Iceland. For 10 points, name this second-largest ocean, which separates Europe from North America.",
+    "answer": "<u>Atlantic</u> Ocean [accept North <u>Atlantic</u> Ocean or North <u>Atlantic</u> Oscillation, prompt on <u>Sargasso</u> Se<u>a before</u> mentioned]",
+    "power_index": 48
+  },
+  {
+    "id": "647044212576885f91e62208",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "The discovery of one of these particles was facilitated by Iliopoulos and Maiani’s development of the GIM mechanism, leading to the invention of what was termed the “particle zoo”. These particles, classified by Gell-Mann, cannot be in isolation as a result of quantum confinement, and their interactions are mediated by the weak force. Quantum chromodynamics describes the interactions of these particles that carry a fraction of the fundamental charge. For ten points, what subatomic particles come in six varieties, including up and charm, and are the constituents of protons?",
+    "answer": "<u>quarks</u>",
+    "power_index": 51
+  },
+  {
+    "id": "63e1c0eb32d1b824539f081b",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "Wien’s displacement law states that the wavelength of blackbody radiation is inversely proportional to this value, while the Stefan-Boltzmann law claims the total power is proportional to it raised to the fourth power. The average kinetic energy of a molecule is equivalent to three-halves times Boltzmann’s constant times this value. This value increases proportionally to the amount of heat added to a system over the heat capacity. For 10 points, name this physical property, given in degrees Celsius or Fahrenheit, that is conventionally used to denote how hot or cold something is.",
+    "answer": "<u>temperature</u>",
+    "power_index": 500
+  },
+  {
+    "id": "663809d2867240107e0f2142",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "This set of numbers has the least cardinality greater than that of the integers, according to the continuum hypothesis, and is the union of the algebraic and transcendental numbers. This complete totally ordered field can be constructed by Cauchy sequences, and this set is  uncountable according to Cantor's diagonal argument. The union of the rationals and irrationals, for 10 points, name this set of numbers denoted R.",
+    "answer": "<u>real</u> numbers (accept <u>R</u> before the end)",
+    "power_index": 44
+  },
+  {
+    "id": "62f3ed6a57b6d50239b5227d",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "If one of these particles does not contribute to a quantum number, then it becomes a virtual pair known as its “sea” type. These particles are described by SU(3) symmetry in the Eightfold Way theory. Sau Lan Wu helped discover the J/psi particle, which is made up of two of these objects. These particles are described by  color charge in quantum chromodynamics. In 1995, Melissa Franklin’s team at Fermilab discovered the “top” type of these particles. For 10 points, name these flavored elementary particles that make up protons and neutrons.",
+    "answer": "<u>quark</u>s",
+    "power_index": 57
+  },
+  {
+    "id": "6983ff70ebb0dabe80252149",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "This compound and the prefix “neo-\"name a common class of insecticides such as imida•cloprid which have been implicated in colony collapse disorder. This compound cannot stimulate muscarinic receptors, as it selectively binds to its namesake acetylcholine receptors. It’s not a neurotransmitter, but varenicline and bupropion are often used to substitute this molecule’s effects by releasing dopamine into the ventral tegmental area. Replacement therapies involving patches and gum are used to treat dependence on this molecule. For 10 points, name this highly addictive molecule found in cigarettes.",
+    "answer": "<u>nicotine</u> [accept neo<u>nicotinoid</u>s or accept <u>nicotinic</u> acetylcholine receptors]",
+    "power_index": 55
+  },
+  {
+    "id": "6302ccab3e73f93749c0e176",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "Lucien LaCoste invented a zero-length spring for use in these devices. The Zoeppritz equations can be used with these devices to estimate reflection coefficients and changes to acoustic impedance--which is useful, for finding oil. These devices are ineffective inside a 104 to 140 degree sector called the shadow zone. Disturbances named for Love and  Rayleigh reach these devices long after primary and secondary body waves. They use a stationary mass and a base attached to the ground to convert mechanical tremors to electric voltages. Three of them can be used to determine the epicenter. For 10 points, name these devices which detect earthquakes.",
+    "answer": "<u>seismograph</u>s [or <u>seismogram</u>s]",
+    "power_index": 54
+  },
+  {
+    "id": "62f30f3a499e50c9ee5d90dc",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "This quantity is roughly the same for all liquids at their boiling point according to Trouton's rule. For a black hole, this quantity is proportional to the surface area of the event horizon. This value for a monatomic ideal gas can be found with the Sackur-Tetrode equation. One equation states that this value is equal to  Boltzmann's constant times the natural log of the amount of microstates. One law governing this quantity is violated by Maxwell's Demon, and that law, which states that the value for this quantity of the universe is always increasing, is the Second Law of Thermodynamics. For 10 points, what quantity symbolized S measures the disorder of a system?",
+    "answer": "<u>entropy</u> [prompt on <u>S</u> before mention]",
+    "power_index": 56
+  },
+  {
+    "id": "62edc1ba974521c293e4984b",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "The Precambrian animal Arkarua is thought to have been the first member of this phylum. One class within this phylum, Crinoidea, contains sea lilies. Most adult members of this phylum possess pentaradial symmetry, and its members possess tube feet which are a part of their  water vascular system. One member of this phylum is a major predator of coral reefs, while members of its class Asteroidea are capable of regenerating lost arms. For 10 points, name this phylum which contains sea cucumbers, sea urchins, and starfish.",
+    "answer": "<u>Echinoderm</u>ata",
+    "power_index": 45
+  },
+  {
+    "id": "62f3ed6a57b6d50239b5339b",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "These objects can be constructed as real polynomials in x modulo x-squared plus 1. The Cauchy–Goursat theorem deals with analysis over these objects, and everywhere-differentiable functions over these objects are called holomorphic. The absolute value of one of these objects is defined as the square root of the product of it and its  conjugate. The fundamental theorem of algebra states that every polynomial defined over these objects has a zero in these objects. If a quadratic equation has a negative discriminant, then its roots are always these objects. For 10 points, name these quantities that can be expressed in the form a plus i b.",
+    "answer": "<u>complex</u> numbers [be generous and anti-prompt on <u>imaginary</u> numbers]",
+    "power_index": 53
+  },
+  {
+    "id": "63e3f13e1843aa591320176e",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "In plants, organisms may undergo this process as a result of becoming polyploid. The phyletic gradualism model proposes a slow and uniform rate for this process. Reinforcement may increase this process by selecting against low fitness offspring according to the  Wallace Effect. Two forms of this process include allopatric and sympatric types, which occurs due to geographic isolation and gene flow being cut off by organisms inhabiting the same range respectively. For 10 points, name this process in which a lineage is split, and a new type of organisms are formed.",
+    "answer": "<u>speciation</u>",
+    "power_index": 40
+  },
+  {
+    "id": "663809d0867240107e0f1fb4",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "“Mesomerism” is also used to describe this phenomenon. Delocalized electrons are responsible for the visual depiction of this concept by multiple Lewis diagrams inside square brackets, and this concept causes the non-integer bond order found in  aromatic molecules. Present in nitrate, carbonate and benzene molecules, for 10 points, name this type of structure in which the length of carbon-carbon bonds is in between single and double.",
+    "answer": "<u>resonance</u>",
+    "power_index": 36
+  },
+  {
+    "id": "64d81df703b5396be47593dc",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "In De Moivre's (duh MWAH-vruh's) theorem, this function is multiplied by i. This function is used in the Fourier (FOOR-yay) transforms for odd functions. The hyperbolic form of this function equals “e to the x minus e to the negative x over two.” The negative reciprocal of this function squared is the derivative of  cotangent. This function of zero equals zero, and it is often defined as the y-coordinate of a point on the unit circle. For 10 points, name this function that is defined as opposite over hypotenuse.",
+    "answer": "<u>sine</u> [or <u>sine</u> of x]",
+    "power_index": 54
+  },
+  {
+    "id": "62f3ed6a57b6d50239b52604",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "An “index” for this property is commonly calculated by either subtracting the magnitude V from B or B from a similar quantity U; those three quantities are determined using passband filters. Temperature, spectral type, or this property is plotted on the x-axis of a Hertzsprung-Russell diagram. This property is used to classify stars in the UBV  photometric system. Spectra qualitatively show a wide range of this property. This property is the perception of a light wave’s frequency, and thus wavelength. For 10 points, name this property, for which the star Rigel is blue-white.",
+    "answer": "<u>color</u>",
+    "power_index": 56
+  },
+  {
+    "id": "66cd4c3dc5459312fdcc56aa",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "This organelle is the main constituent of the spongiome. When this organelle is too large, mitosis requires a phragmosome. In non-animal cells, structures analogous to lysosomes are instead named for these organelles. To counteract the effects of osmosis, cells like Paramecium use a contractile one of these organelles. The lysosome injects  digestive enzymes into one of these organelles containing “food” after phagocytosis. In plant cells, this organelle takes up roughly 30% of the cell’s volume, and consists of cell sap within a tonoplast. For 10 points, name this organelle that expels unwanted substances and stores water.",
+    "answer": "<u>vacuole</u>s [accept <u>vesicle</u>s; accept contractile <u>vacuole</u>s, contractile <u>vacuole</u> complex, or food <u>vacuole</u>]",
+    "power_index": 51
+  },
+  {
+    "id": "62f743b20e8b632d5cf140a1",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "The Lin-Kernighan heuristic is one of the best strategies for solving this problem, and Christofides’ algorithm solves this problem by constructing a minimum spanning tree. The “bottleneck” variety of this problem aims to minimize the weight of the weightiest edge in a cycle. This problem is equivalent to finding the  Hamiltonian cycle of lowest weight, and this NP-hard problem is a special case of the vehicle routing problem. For 10 points, name this problem which, given a list of cities and the distances between them, gives the shortest path that visits every city once and returns to the original city.",
+    "answer": "<u>travelling salesman</u> problem (prompt on “TSP”)",
+    "power_index": 50
+  },
+  {
+    "id": "63d6af74789ea9cdfc004f38",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "The angular analogue of this quantity is equal to net torque divided by moment of inertia. In uniform circular motion, a centripetal force creates this quantity, which points radially inward and is equal to velocity squared divided by radius. This quantity, the derivative of velocity, is multiplied by  mass to give force in Newton’s Second Law. For 10 points, name this quantity that is non-zero if an object is changing direction, slowing down, or speeding up.",
+    "answer": "<u>acceleration</u> (accept linear <u>acceleration</u>; accept angular <u>acceleration</u>; prompt on “a”)",
+    "power_index": 48
+  },
+  {
+    "id": "64a0ccb31634f2d5eb7deb2e",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "A generalized form of this quantity equals the partial derivative of the Lagrangian with respect to generalized velocity. When the Lagrangian is independent of position, the conservation of this quantity can be derived from Noether’s theorem. This quantity equals the square root of the product two times mass times kinetic energy. It’s not force, but according to  Newton’s Second Law, this quantity’s time derivative equals mass times acceleration. Rockets generate thrust after ejecting mass since this quantity is conserved. Impulse equals the change in this quantity. For 10 points, name this quantity equal to mass times velocity.",
+    "answer": "linear <u>momentum</u> [prompt on <u>p</u>; do not accept or prompt on “angular momentum”]",
+    "power_index": 57
+  },
+  {
+    "id": "663809cf867240107e0f1d92",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "One allotrope of this element found at the Tunguska impact site has a hexagonal lattice structure and is called Lonsdaleite. This element is produced in stars via the triple-alpha process, and another of its allotropes with an amorphous arrangement is a useful solid lubricant.  Fullerenes such as buckyballs are composed only of this element. Its isotope with mass number 14 is commonly used in radiometric dating. Name this element which composes diamond and graphite, has atomic number six, and chemical symbol C.",
+    "answer": "<u>Carbon</u> (Accept <u>C</u> before read)",
+    "power_index": 44
+  },
+  {
+    "id": "64a0ccb31634f2d5eb7debda",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "The hyperbolic form of this function plots the shape of a catenary curve. The dot product of two vectors equals the product of the magnitudes of the vectors and this function of the angle between them. A “law” named for this even function finds the length of the third side of any triangle given the other two sides and the angle between them, generalizing the  Pythagorean Theorem. On the unit circle, the x-coordinate is given by this function. The reciprocal of this function is the secant function. For 10 points, name this trigonometric function that, for an angle in a right triangle, equals the length of the opposite side divided by the hypotenuse.",
+    "answer": "<u>cos</u>ine [or the hyperbolic <u>cos</u>ine; or the law of <u>cos</u>ines]",
+    "power_index": 65
+  },
+  {
+    "id": "62f3ed6a57b6d50239b52304",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "Mayer’s relation states that the difference between two types of this quantity equals the ideal gas constant. A model that accurately predicts the value of this quantity at low temperatures models solids as phonons in a box. This quantity equals 3 times the ideal gas constant for a solid according to the  Dulong-Petit law, and it is defined as the derivative of enthalpy with respect to temperature. Hydrogen bonds give water an unusually high value of 4.18 Joules per Kelvin for this quantity. For 10 points, name this quantity, the thermal energy needed to raise the temperature of a material.",
+    "answer": "specific <u>heat capacity</u> (accept <u>specific heat</u>)",
+    "power_index": 52
+  },
+  {
+    "id": "63e44fc160c522c60cc7af84",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "Noether’s theorem shows that this quantity is conserved when the Lagrangian of a system possesses translational invariance, and its quantum mechanical operator is equal to negative i h-bar times the gradient operator. The de Broglie wavelength is inversely proportional to it, and the derivative of this quantity with respect to time is force. Impulse equals the change in this quantity, which is conserved by all collisions of a closed system. For 10 points, name this quantity often symbolized as p, the product of mass and velocity.",
+    "answer": "Linear <u>Momentum</u>",
+    "power_index": 500
+  },
+  {
+    "id": "630ad08149000432cd5e7c62",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "Friedrich Wohler accidentally disproved vitalism by combining isocyanic acid with this compound to form the organic molecule urea. This compound, which forms Tollens’ reagent with silver nitrate, is a weak base and has a trigonal pyramidal structure. With oxygen and water, this compound produces nitric acid in the  Ostwald process. The Haber-Bosch process uses nitrogen fixation to produce this compound found in fertilizers. For 10 points, name this compound with formula NH3 [N-H-3].",
+    "answer": "<u>ammonia</u> (accept NH3 before mentioned)",
+    "power_index": 48
+  },
+  {
+    "id": "66424f5a1cd113dee4e969f4",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "The Larmor frequency is proportional to a constant given by this Greek letter, and a factor with this letter is applied to all components of an energy–momentum four-vector. Oxygen has a value of 7/5 for a constant with this Greek letter, the adiabatic index. This letter denoting particles produced by an electron–positron collision also denotes a factor multiplied by the proper time in time dilation, the  Lorentz factor. The brightest events in the universe are named for “bursts” of rays named with this Greek letter. For 10 points, give this Greek letter naming a type of penetrating radiation where photons are emitted, higher in energy than beta or alpha radiation.",
+    "answer": "<u>gamma</u> (accept specification of lower or upper cases)",
+    "power_index": 66
+  },
+  {
+    "id": "63829f6fe2cbd63208bff074",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "Ringwoodite, wadsleyite and ferropericlase are all found in this structure. Scientists believe that a high pressure form of magnesium silicate called post perovskite exists in part of this structure, which contains an outer region home to the asthenosphere and lithosphere. The lower layer of this region, sometimes referred to as the D double prime layer, contains an area called the Gutenberg discontinuity while the top part of this region is called the Moho discontinuity. An ejection of hot rocks from this region is known as its namesake “plume”. For 10 points, name this middle layer of the Earth that is between the crust and the core.",
+    "answer": "<u>mantle</u> (do not accept “inner mantle” or “outer mantle”, the first clue is about minerals found in different parts of the mantle)",
+    "power_index": 500
+  },
+  {
+    "id": "6466620aecba4f3099064e07",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "This element is reacted with calcium carbide in the Frank-Caro process. Along with boron, this element forms an extremely hard compound with a lattice structure isoelectronic to diamond. A compound consisting of sodium and three atoms of this element is commonly used in airbags. An oxoacid of this element is generated using a platinum-rhodium catalyst in the  Ostwald process. This element has an unusually low electron affinity due to its half-filled 2p subshell. This element reacts with hydrogen in the Haber process to produce ammonia. For 10 points, name this element that is the most common in Earth’s atmosphere.",
+    "answer": "<u>nitrogen</u> [or <u>N</u>]",
+    "power_index": 57
+  },
+  {
+    "id": "6466620aecba4f3099064e93",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "This compound binds to alpha and beta receptors to perform its main function. This compound’s synthesis by the methylation of its precursor in chromaffin cells is catalyzed by PNMT. It’s not glucagon, but high levels of this compound can trigger gluconeogenesis. Secretion of it is increased by conditions like pheochromocytomas [FEE-oh-CROW-mo-SIGH-tow-mas] and hypoglycemia. This compound can trigger  vasoconstriction, which is why it is often used to treat anaphylaxis. This neurotransmitter is produced from namesake glands that sit above the kidneys. For 10 points, name this chemical that activates the “fight-or-flight” mechanism and is used to treat allergic reactions through its namesake pens.",
+    "answer": "<u>epinephrine</u> [accept <u>adrenaline</u>; do not accept or prompt on “norepinephrine” or “noradrenaline”]",
+    "power_index": 57
+  },
+  {
+    "id": "66423ff4515f1173a58a27ed",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "One of these particles has a long enough lifetime to create a secondary vertex near a collision, allowing jets originating from it to be “tagged.” A bound state of two of these particles was simultaneously discovered by Ting and Richter in the November Revolution and is called J/psi (“jay-sigh”). These particles are never found in isolation due to color confinement, which along with asymptotic (as-um-TOT-ik) freedom is predicted by quantum chromoᐧdynamics. Mesons (MEE-zaanz) and baryons (BEH-ree-aanz) are composed of these particles. Charm and strange are the second generation of these particles, which are bound by gluons (GLOO-aanz). For 10 points, name these elementary particles whose up and down flavors form protons and neutrons.",
+    "answer": "<u>quark</u> [accept <u>anti-quark</u>s; accept specific quarks, including <u>up</u>, <u>down</u>, <u>top</u>, <u>bottom</u>, <u>charm</u>, and <u>strange</u> before “charm”; prompt on <u>fermion</u>s]",
+    "power_index": 69
+  },
+  {
+    "id": "62e0012ddfc9de4846a5048b",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "The diastole (di-AA-stoh-lee) and systole (SIS-toh-lee) of this organ produce the QRS complex on EKG readings. Purkinje (purr-KIN-jee) fibers in this organ transfer electrical signals around this organ. The tricuspid and mitral  valves in this organ control flow between the upper and lower parts of this organ, which are four chambers called atria and ventricles. Veins carry blood to, for 10 points, what organ of the circulatory system that pumps blood to the rest of the body?",
+    "answer": "<u>heart</u>",
+    "power_index": 32
+  }
+]

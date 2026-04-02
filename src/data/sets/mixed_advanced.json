@@ -1,0 +1,402 @@
+[
+  {
+    "id": "697ffb6955785d7f5ce38b40",
+    "category": "Science",
+    "subcategory": "Other Science",
+    "question": "It's not partitioning a graph, but one heuristic for performing this task is named after Shen Lin and B.W. Kernighan. In a metric space, this task can be solved to within 50% of the optimal solution using the Christofides algorithm. A Θ(n^2) (\"Big theta of n squared\") solution to approximately solve this task is the nearest neighbor algorithm, which can sometimes produce a  route much longer than optimal. Brute forcing every possible path will solve this problem in O((n-1)!) (\"Big O of n minus one factorial\") time. For 10 points, identify this problem, that of finding the shortest loop that visits every node in a weighted graph.",
+    "answer": "solving the <u>Traveling Salesperson Problem</u> [accept <u>Traveling Salesman Problem</u>, accept <u>TSP</u>]",
+    "power_index": 64
+  },
+  {
+    "id": "62f85b0cdbfff7f0b54af09f",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "Somites 34-41 in the embryos of birds develop into a \"heart\" named for this substance, found in the tail. This substance moves easily through the subcapsular sinus. This substance is combined with emulsified fats to form a milky-colored mixture called chyle, which is transported by capillaries called lacteals. Near the left jugular, the left subclavian vein receives this substance from the thoracic duct. This material  accumulates in the lower legs in elephantiasis. This substance is formed from material that doesn't enter the venules from capillary beds in tissues. For 10 points, name this substance that contains waste interstitial fluid and flows past namesake \"nodes\" which swell during infection.",
+    "answer": "<u>lymph</u>",
+    "power_index": 65
+  },
+  {
+    "id": "639f712311983f92aa71f7e0",
+    "category": "History",
+    "subcategory": "Ancient History",
+    "question": "This empire’s final ruler was reportedly stabbed to death in a wagon following a coup near the city of Rhagae. One ruler of this empire faced a rebellion by a man claiming to be his executed brother Bardiya. One ruler of this empire carved theBehistun inscription. One ruler of this empire reportedly ordered his soldiers to whip the  sea after a storm destroyed two pontoon bridges. One military commander from this empire was killed by Arimnestos at the Battle of Plataea; that commander, Mardonius, stayed behind after a loss at the Battle of Salamis in order to sack Athens. For 10 points, name this empire which fought the Greeks at Thermopylae.",
+    "answer": "<u>Achaemenid</u> <u>Persia</u>n Empire [accept either underlined part]",
+    "power_index": 58
+  },
+  {
+    "id": "63a5146d0af62c6119349915",
+    "category": "Fine Arts",
+    "subcategory": "Auditory Fine Arts",
+    "question": "One song collection by this composer includes the story of a man hearing the posthorn and ends with “The Hurdy-Gurdy Man”. That collection, Winterreise, is often paired with Die  Schone Mullerin. This composer of the Wanderer Fantasy wrote a work for a small ensemble that includes a double bass, a piano, and only one violin. He wrote hundreds of Lieder such as “The Erlking” and “Gretchen at the Spinning Wheel”. He is known for his incidental music to Rosamunde. For 10 points, name this Romantic composer of the “Trout Quintet” and the “Unfinished Symphony”.",
+    "answer": "Franz <u>Schubert</u>",
+    "power_index": 29
+  },
+  {
+    "id": "62ead0be8c91030f69d5b8c2",
+    "category": "History",
+    "subcategory": "European History",
+    "question": "One official within this group recently announced in an interview that he is “absolutely fine and healthy,” and this group has criticized the United States for violating a treaty. The Panjshir resistance opposes the rule of this group, and is headquartered in the only provisional capital not under their control, Bazarak. This group signed the 2020  Doha Agreement with the U.S., and regained control of a country after Ashraf Ghani fled to Tajikistan. For 10 points, name this Islamic Military group that reinstated the Islamic Emirate of Afghanistan after the Fall of Kabul.",
+    "answer": "<u>Taliban</u> <GR>",
+    "power_index": 56
+  },
+  {
+    "id": "62f85b0cdbfff7f0b54ad9e7",
+    "category": "Literature",
+    "subcategory": "American Literature",
+    "question": "One group of people in this poem tremble before \"the machinery of other skeletons\" and are described as being stabbed by a blond angel in a Turkish bath. Another figure in this poem is called \"Congress of sorrows\", is described as having \"a thousand blind windows\" for eyes, and is referred to as a \"sphinx of cement and aluminum\". One section of this poem describes a place \"where you must feel very  strange\" and where \"the faculties of the skull no longer admit the worms of the senses\". That section is addressed to Carl Solomon, to whom the speaker says \"I am with you in Rockland\". Also featuring the repeated image of the god Moloch, it opens with the line \"I saw the best minds of my generation destroyed by madness\". For 10 points, name this poem by Allen Ginsberg.",
+    "answer": "\"<u>Howl</u>\"",
+    "power_index": 72
+  },
+  {
+    "id": "62d98017f67c8a6f6e0a2aef",
+    "category": "Mythology",
+    "subcategory": "Mythology",
+    "question": "Symbols of this deity include the star Sirius and the Tiet amulets. When this deity was syncretized with Serket, she wore a crown of scorpions, but normally, this deity’s headdress was a throne. Four of her sons acted as the protectors of the canopic jars. This deity created the first cobra out of spittle and dust which she used topoison  Ra and force him to reveal his secret name. This goddess traveled to Byblos to find the coffin of her husband, and her sister Nepthys helped her re-assemble her husband after he had been carved up by Set. For 10 points, name this Egyptian goddess, the mother of Horus and the husband of Osiris.",
+    "answer": "<u>Isis</u> (accept <u>Sopdet</u> before “Tiet”)",
+    "power_index": 60
+  },
+  {
+    "id": "62d98018f67c8a6f6e0a7746",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "This value is plotted against free energy on Frost diagrams. This value changes at two carbons in ozonolysis. An increase in this value increases a bond’s covalent character. This value is unusually high for the central atom of permanganate. When calculating this value, electrons are assigned to the more electronegative atom, unlike in formal charge computations. This value decreases for an atom undergoing a reduction. This value, which determines the suffixes “-ous” and “-ic,” is written with Roman numerals in parentheses. For 10 points, name this value, the number of electrons an atom has gained or lost.",
+    "answer": "<u>oxidation state</u>s [or <u>oxidation number</u>s; prompt on <u>charge</u>]",
+    "power_index": 53
+  },
+  {
+    "id": "62f86328cdb0cbb3f4645ef8",
+    "category": "Geography",
+    "subcategory": "Geography",
+    "question": "The Sara people live around this lake, and major cities located along it include Kano. The Bodélé Depression is northeast of it. The Logone and Chari rivers form a delta as they flow into it. Its namesake basin is bounded in the north by the Aïr Mountains. There have been several plans to divert the  Ubangi river into it. Inefficient irrigation practices and overuse have turned it into an environmental disaster. It is divided between Niger, Nigeria, and Cameroon. For 10 points, name this dangerously-shrinking shallow lake that shares its name with a central African country with capital N’Djamena.",
+    "answer": "Lake <u>Chad</u>",
+    "power_index": 55
+  },
+  {
+    "id": "62f73cec2215f32393144c26",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "A functional group containing this entity acts as a nucleophile in a reaction with a peroxyacid to form an epoxide in the Prilezhaev reaction. E-Z notation is the IUPAC method of describing the absolute stereochemistry of these structures and is an extension of the cis-trans  method. Carbonyls have one of these structures between the carbon and oxygen atoms. The simplest straight chain hydrocarbons containing these structures have a characteristic ‘n’ carbon atoms and ‘2n’ hydrogen atoms, and diatomic oxygen contains one of these structures. For 10 points, name this type of bond denoted by four electrons or two lines in a Lewis diagram.",
+    "answer": "<u>double bond</u>",
+    "power_index": 45
+  },
+  {
+    "id": "62d9801af67c8a6f6e0b427c",
+    "category": "Literature",
+    "subcategory": "European Literature",
+    "question": "In a story by this author, a German showman refuses to cut out Ivan after he is eaten alive by a crocodile. The \"dreamer\" protagonist of a story by this author falls for Nastenka over four winter evenings. One of this author's protagonists spends months preparing to literally bump into a tall military officer who insulted him. In a novella by this author of  \"White Nights,\" the protagonist criticizes the \"Crystal Palace\" of Nikolai Cherny·shevsky prior to the section \"Apropos of the Wet Snow.\" The protagonist of that novella by this author claims to be a \"sick\" and \"spiteful\" man and demeans the prostitute Liza. Notes from the Underground is by – for 10 points – what author, who created Raskolnikov in Crime and Punishment?",
+    "answer": "Fyodor Mikhaylovich <u>Dostoyevsky</u> (The first story is \"The Crocodile.\")",
+    "power_index": 64
+  },
+  {
+    "id": "66424f5f1cd113dee4e96a5b",
+    "category": "History",
+    "subcategory": "American History",
+    "question": "The Thornton Affair started a conflict during this man’s presidency. In a previous position, this man enforced the “gag rule” on petitions regarding slavery. This president reestablished the Independent Treasury System and lowered import duties via the Walker Tariff. This man is the only president to fulfill all of his campaign agenda. The Spot Resolutions demanded that this president identify the exact location where blood was spilled in American soil. During this man’s presidency, Nicholas Trist signed the Treaty of Guadalupe Hidalgo. For 10 points, name this president, nicknamed “Young Hickory,” who oversaw the Mexican–American War.",
+    "answer": "James K. <u>Polk</u> ",
+    "power_index": 50
+  },
+  {
+    "id": "6451604ef8a47edd20cfa5b0",
+    "category": "Fine Arts",
+    "subcategory": "Auditory Fine Arts",
+    "question": "August Wenzinger is most famous for editing an authoritative edition of six works by this composer. This composer, many of whose works are performed from transcriptions by Ferruccio Busoni, wrote a concerto whose second movement only consists of a Phrygian half-cadence, around which the soloist is to improvise. This composer, who frequently collaborated with the librettist Picander, used a  Lutheran hymn written by Philipp Nicolai for his “Wachet Auf.” A piece by this composer was adapted into Charles Gounod’s Ave Maria. A revival of this composer’s music began with Felix Mendelssohn’s performance of their St. Matthew Passion. For 10 points, name this Baroque composer of The Well-Tempered Clavier and several Brandenburg Concertos.",
+    "answer": "<u>Johann Sebastian Bach</u> [or <u>J. S. Bach</u>; prompt on <u>Bach</u> or <u>Johann Bach</u>]",
+    "power_index": 59
+  },
+  {
+    "id": "63bba672874e0ef7dd7b1d5f",
+    "category": "Science",
+    "subcategory": "Biology",
+    "question": "RPN1 and RPN2 code for an integral protein within this structure. One type of this structure contains glucose-6-phosphatase and stores and pumps calcium ions. Vesicles coated with COP I are targeted to return to this organelle, while those with COP II leave it. One type metabolizes glycogen and synthesizes steroids, while another type synthesizes secreted proteins. Its lumen is contiguous with the perinuclear space, and the two different types of this organelle synthesize lipids and proteins. For 10 points, name this organelle in which the presence of bound ribosomes differentiates the “rough” and “smooth” types.",
+    "answer": "<u>e</u>ndoplasmic <u>r</u>eticulum [accept <u>r</u>ough <u>e</u>ndoplasmic <u>r</u>eticulum before “glucose-6-phosphatase” is read]",
+    "power_index": 500
+  },
+  {
+    "id": "63bba672874e0ef7dd7b155a",
+    "category": "Mythology",
+    "subcategory": "Mythology",
+    "question": "The all-black bull Mnevis was a manifestation of this deity, whose soul was represented by the Bennu bird. The grandfather of Geb and Nut, he fathered Tefnut and is either the husband or father of Hathor. In the form of a cat, he repeatedly slays an evil serpent. Riding a barge each night, he would defeat Apep, the demon of darkness, before turning back towards the east. He was sometimes combined with Atum, Horus, or Amun. For 10 points, name Egyptian sun god.",
+    "answer": "<u>Ra</u> or <u>Re</u>",
+    "power_index": 500
+  },
+  {
+    "id": "68360529bd73b39bd4bb355f",
+    "category": "Religion",
+    "subcategory": "Religion",
+    "question": "Some accounts of this woman’s birth tell that four women of indescribable beauty appeared to help with her delivery, while other sources equate her with Mary as she is also reported to have been visited by angels.  This woman gave the Sermon of Fadak, and when her father announced her proposed wedding to his cousin, her silence was seen as tacit agreement. This daughter of Khadija named a caliphate which traced their ancestry to this woman and her husband, the first Shi’a Imam. For 10 points, name this revered woman of Islam, the husband of Ali and daughter of Muhammed.",
+    "answer": "<u>Fāṭima</u> bint Muḥammad [or <u>Fāṭima</u> al-Zahrā]",
+    "power_index": 55
+  },
+  {
+    "id": "62fe9e9bd9499606df43a094",
+    "category": "Mythology",
+    "subcategory": "Mythology",
+    "question": "This mythical locale’s prince Androgeus was killed for his athletic prowess at several games. A later king of this place swore during a storm to sacrifice the first living thing he saw to Poseidon if he got home; that king, who had to kill his son, was Idomeneus. Rhadamanthus was exiled from this domain, whose queens included the zoophilic Pasiphae. Icarus flew away from this realm with his father, Daedalus, after the Labyrinth was built here. A journey from Athens took Theseus to, for 10 points, what place where the Minotaur was kept by King Minos, a long island south of mainland Greece?",
+    "answer": "<u>Crete</u> [or <u>Kriti</u>] &lt;MJ&gt;",
+    "power_index": 500
+  },
+  {
+    "id": "62ed60f71539231f571edd35",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "Adding this element across a double bond produces an anti-Markovnikov product due to its relative electropositivity and is typically followed by oxidation with hydrogen peroxide to form an alcohol. This element can form three-center two-electron bonds, which generalizes into its ability to share electron pairs across deltahedral cluster compounds. This element's fluoride is  trigonal planar and acts as an effective Lewis base because it is electron-deficient, a consequence of this element's low valency. This element's trihydride is almost always found dimerized as it only has 6 valence electrons, violating the octet rule. For 10 points, name this first p-block element, a metalloid with atomic number 5.",
+    "answer": "<u>boron</u> [or <u>B</u>; prompt on <u>hydroboration</u>-oxidation]",
+    "power_index": 53
+  },
+  {
+    "id": "646fffa69d2ba7804333f944",
+    "category": "Fine Arts",
+    "subcategory": "Other Fine Arts",
+    "question": "In one appearance this character mocks Cherubino in the aria “Non piu andrai.” This character was the focus of three Pierre Beaumarchais (bo-mar-shay) plays, the last one being “The Guilty Mother.” In one appearance this man is targeted by Dr. Bartolo because this character had earlier aided a man who went under the alias Lindoro. Pavarotti famously repeats this man’s name in his performance of “Largo al factotum,” which describes razors and combs. For ten points, name this man, the namesake Barber of Seville, who was married in a popular Mozart opera.",
+    "answer": "<u>Figaro</u> [prompt on “Barber of Seville” before mention]",
+    "power_index": 500
+  },
+  {
+    "id": "62f85b0cdbfff7f0b54ae155",
+    "category": "Philosophy",
+    "subcategory": "Philosophy",
+    "question": "Jacques Maritain pointed to this man's treatment of the existence-essence distinction as the germ of a type of existentialism. This man argued that the existence of contingent things requires the existence of a necessary being. In his major work of philosophy, this author usually uses the construction \"Sed Contra,\" meaning \"On the Contrary,\" followed by \"Respondeo,\" meaning  \"I Respond.\" This philosopher stopped writing after a mystical experience that led him to compare his thought to straw. This man's magnum opus included the quinque viae, or five proofs for the existence of God. A synthesis of the teachings of the Catholic Church with classical philosophy can be found in, for 10 points, what 13th century Dominican friar's Summa Theologica?",
+    "answer": "Thomas <u>Aquinas</u> [or Thomas of <u>Aquin</u>o; prompt on <u>Thomas</u>]",
+    "power_index": 57
+  },
+  {
+    "id": "62f73cec2215f32393144cff",
+    "category": "Literature",
+    "subcategory": "American Literature",
+    "question": "This work describes a psychiatric hospital as a place “where we hug and kiss the United States under our bedsheets.” This poem asks about a “sphinx of cement and aluminum,” and multiple cities including New York, San Francisco, and Seattle are described as  “holy!” in the footnote to this poem. This poem’s second part repeats the name Moloch, and its third part repeats the line “I’m with you in Rockland” every other line. This poem opens “I saw the best minds of my generation destroyed by madness.” For 10 points, name this Beat Generation poem by Allen Ginsberg.",
+    "answer": "“<u>Howl</u>” [accept “<u>Howl</u> for Carl Solomon”]",
+    "power_index": 43
+  },
+  {
+    "id": "62d9801af67c8a6f6e0b42a6",
+    "category": "History",
+    "subcategory": "World History",
+    "question": "Sir Howard Davies resigned due to ties between members of this family and the London School of Economics. An LSE graduate from this family was photographed surrounded by gunmen from the Zintan Brigades. Another member of this family built a 1,750-mile-long irrigation system called the Great Man-Made River. That same \"Brotherly Leader\" from this family outlined his socialist theories of the  \"Third International\". The patriarch of this family agreed to pay over two billion dollars to the families of the Lockerbie Bombing victims. That patriarch of this family hid out in a drainage pipe in Sirte before being killed. For 10 points, give this surname of the author of the Green Book, a dictator who was killed in 2011 during the Libyan Civil War.",
+    "answer": "<u>Qaddafi</u> [or <u>Gaddafi</u>; accept Muammar <u>Gaddafi</u> or Saif al-Islam <u>Gaddafi</u>]",
+    "power_index": 61
+  },
+  {
+    "id": "62f2c8e7e2ddc83d7b7536dc",
+    "category": "Science",
+    "subcategory": "Chemistry",
+    "question": "The Eyring equation sets the bimolecular rate constant to be a form of this quantity times the frequency of successful vibrations. For ligand-metal complexation, this quantity is symbolized beta. This quantity typically ranges between a nanomolar and a micromolar and is subscripted with a D to quantify binding affinities in biochemistry. Though activities are needed to make this quantity dimensionless, integer powers of RT are used to convert its units between  concentration and pressure. This quantity decreases with temperature for exothermic reactions. It equals the product of species' molarities raised to their stoichiometric coefficients by the law of mass action. For 10 points, name this ratio between a reaction's forward and reverse rate constants.",
+    "answer": "<u>equilibrium constant</u> [accept <u>Keq</u> or <u>stability constant</u> or <u>dissociation constant</u> or <u>KD</u>; accept <u>formation constant</u> or <u>binding constant</u>; prompt on <u>K</u> alone]",
+    "power_index": 71
+  },
+  {
+    "id": "68bb81d4c87a3eecfecf52ac",
+    "category": "Fine Arts",
+    "subcategory": "Auditory Fine Arts",
+    "question": "This composer’s eighth string quartet quotes the aria “Seryozha, my love” from an opera he wrote about a woman who murders her merchant husband. This man is credited with writing a waltz that begins, descending [read slowly] long G, E-flat, D, C. A bass soloist sings, \"Now I seem to be a Jew\" in a setting of a poem by Yevgeny Yevtushenko by this composer, which is part of his thirteenth symphony. This man's seventh symphony features a 22-measure \"invasion theme,\" to depict the Nazi siege of a Russian city. For 10 points, name this Soviet composer who wrote symphonies nicknamed \"Babi Yar\" and \"Leningrad.\"",
+    "answer": "Dmitri Dmitriyevich <u>Shostakovich</u> ",
+    "power_index": 60
+  },
+  {
+    "id": "66cd4c39c5459312fdcc51d8",
+    "category": "Fine Arts",
+    "subcategory": "Other Fine Arts",
+    "question": "The creator of the mini-crini ran this city’s boutique shop SEX and was influential in this city’s 1970s punk scene. A fashion house from this city lines its trench coats with its namesake “checks.” The designer of the armadillo shoe worked in this city and died by suicide in 2010. The mod subculture was present during this city’s  “swinging sixties.” Central Saint Martins is a leading fashion school in this city, which along with New York, Paris, and Milan hosts the Big Four fashion weeks. This city contains the headquarters of Burberry and was home to Vivienne Westwood and Alexander McQueen. For 10 points, name this capital city where many dresses have been premiered by members of its royalty like Princess Diana.",
+    "answer": "<u>London</u> ",
+    "power_index": 58
+  },
+  {
+    "id": "6451e799d4402ec440c622e7",
+    "category": "Religion",
+    "subcategory": "Religion",
+    "question": "This man grew up as an orphan in the house of his uncle and married Khadija, a widow who owned a caravan. Eight additional wives survived him, including his favorite wife A’isha. After this man’s death, A’isha contested the claim of one of his sons, Ali, to become caliph. FTP, name this man, who is said to have received revelations from the angel Gabriel, and who in 622 traveled to Medina from Mecca.",
+    "answer": "<u>Muhummad</u>",
+    "power_index": 500
+  },
+  {
+    "id": "6451e799d4402ec440c6236b",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "One way to derive this is by applying the general boundary conditions of Maxwell’s equations. Another way to derive this law uses Fermat’s principle of least time. In birefringent materials, the ordinary ray obeys this law, while the extraordinary ray does not because this law only holds for isotropic media. This law states that sine theta one over sine theta two is equal to v one over v two, where v is the local velocity of light. FTP, name this law that describes the refraction of light at the boundary of two media.",
+    "answer": "<u>Snell's</u> law (accept also <u>Descartes's</u> law and the <u>Snell–Descartes</u> law; prompt on the law of <u>refraction</u> before mention)",
+    "power_index": 500
+  },
+  {
+    "id": "62d98019f67c8a6f6e0b1a46",
+    "category": "Literature",
+    "subcategory": "World Literature",
+    "question": "The protagonist of a novel by this author watches a burning building from a bookstore’s laundry deck with a classmate. In one novel by this author, the protagonist bonds with Nagasawa over a mutual love of The Great Gatsby, and discusses his roommate, the cartographer “Storm Trooper.” A novel by this author set in a world with two  moons opens with Janáček’s Sinfonietta playing over a taxicab radio. The protagonist visits Naoko at a sanatorium in a novel by this author that centers around Toru Watanabe and is named after a Beatles song. For 10 points, name this author of Norwegian Wood and 1Q84.",
+    "answer": "Haruki <u>Murakami</u> [accept names in either order]",
+    "power_index": 58
+  },
+  {
+    "id": "62d98019f67c8a6f6e0b18ae",
+    "category": "Literature",
+    "subcategory": "European Literature",
+    "question": "A character created by this author shoots a wounded horse out of mercy and becomes homesick after spotting a cherry tree. A refugee trades his passport and two tickets to America in exchange for a stranger to listen to his life story in this author’s novel The Night in Lisbon. In another novel by this author, the bedwetting habits of  Tjaden are cured by a bunking arrangement devised by Corporal Himmelstoss. The Road Back is the sequel to a novel by this author in which the schoolmaster Kantorek convinces Paul Baumer and his friends to enlist in World War One. For 10 points, name this German author of All Quiet on the Western Front.",
+    "answer": "Erich Maria <u>Remarque</u>",
+    "power_index": 60
+  },
+  {
+    "id": "62f85b0cdbfff7f0b54ad79b",
+    "category": "Social Science",
+    "subcategory": "Social Science",
+    "question": "One model of this concept postulates a central executive governing a \"phonological loop\" and \"visuospatial scratchpad,\" and was developed by Baddeley and Hitch. Increased synchrony of theta wave activity is considered a neurological \"tag\" for this process. This process does not explain the primacy effect in the research of Herman Ebbinghaus, but does explain the  recency effect. Cognitive load theory is derived from the limitations of this construct, which is thought to be impaired in ADHD. The process known as \"chunking\" can enhance this faculty's capacity, which was defined by George Miller's \"Magic Number\" of seven plus or minus two. For 10 points, identify this type of memory, converted by consolidation into the long-term variety.",
+    "answer": "<u>working memory</u> [or <u>short-term memory</u>; prompt on just \"memory\"]",
+    "power_index": 55
+  },
+  {
+    "id": "66cd4c3bc5459312fdcc5413",
+    "category": "History",
+    "subcategory": "World History",
+    "question": "This leader adopted the Forward Policy in his country’s northwest along the McMahon Line. This politician described a “new star ris[ing], the star of freedom in the east” in his “Tryst with Destiny” speech. This leader outlined the  Five Principles of Peaceful Coexistence with a northern neighbor. This politician said “the light has gone out of our lives” in response to the assassination of his mentor by Nathuram Godse. This leader of the Congress Party was opposed by Muhammed Ali Jinnah, in a rivalry that caused the partition of this man's country. For 10 points, name this first prime minister of India.",
+    "answer": "Jawaharlal <u> Nehru</u>",
+    "power_index": 38
+  },
+  {
+    "id": "63bba672874e0ef7dd7b1588",
+    "category": "History",
+    "subcategory": "Ancient History",
+    "question": "The Syrian governor Mucianus encouraged this man to claim the throne, and Antonius Primus invaded Rome in support of this man’s claim to the empire. Nero gave him command over Roman forces in Judaea in order to put down the First Jewish Revolt. He ordered the construction of a forum in Rome as well as the Coliseum. Following Caligula's death, this man emerged victorious from the ensuing civil war. Succeeded by his son Titus, for 10 points, name this last ruler of the year of four emperors, the founder of the Flavian dynasty.",
+    "answer": "Titus Flavius <u>Vespasian</u>us",
+    "power_index": 500
+  },
+  {
+    "id": "62fe9e9bd9499606df43a659",
+    "category": "Literature",
+    "subcategory": "British Literature",
+    "question": "A poem about this author says that a “nameless worm” and “noteless blot” worsened this author’s medical condition. The title character of one poem by this author asks “Saturn is fallen, am I too to fall?” In a poem by this author, the word “forlorn” brings the speaker back after proclaiming that the title bird is “not charioted by Bacchus and his pards, but on the viewless wings of poesy.” Another poem written by this author of “Hyperion” and subject of Percy Shelley’s “Adonais” addresses the title object as an “Attic shape” and states that “Beauty is truth, truth beauty.” For 10 points, name this British poet who wrote “Ode to a Nightingale” and “Ode on a Grecian Urn.”",
+    "answer": "John <u>Keats</u>",
+    "power_index": 77
+  },
+  {
+    "id": "62d98019f67c8a6f6e0b0eef",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "This is the second word in the name of a phenomenon that can be polarized into E-modes due to Thomson scattering or B-modes due to gravitational radiation. Phenomena named for this word have energy immediately below the technologically-underserved “terahertz gap.” This word names the highest-energy waves that transmit energy to polar molecules via dielectric heating. Arno Penzias and Robert Wilson discovered a type of cosmic background radiation that peaks in and is named for this region of the electromagnetic spectrum. For 10 points, name this spectral region between radio and infrared waves, which is used in home appliances to cook food.",
+    "answer": "<u>microwave</u>s [accept cosmic <u>microwave</u> background radiation or <u>microwave</u> radiation or <u>microwave</u> ovens; prompt on <u>CMBR</u>; prompt on <u>radio</u> or <u>radio</u> waves before “cosmic” is read]",
+    "power_index": 54
+  },
+  {
+    "id": "639f712311983f92aa71f6a9",
+    "category": "Social Science",
+    "subcategory": "Social Science",
+    "question": "Note to moderator: “egoistic” in line four is not “egotistic” Albert Camus (“al-bear ca-moo”) discussed a type of this action in the works of Fyodor Dostoyevsky and described Edmund Husserl’s focus on Platonic philosophy as a type of this action. This action is described as “the one true philosophical problem” in The  Myth of Sisyphus. Émile Durkheim categorized this action’s varieties as egoistic, anomic, altruistic, and fatalistic in a work titled for this action, which also discussed its differing rates of prevalence between Catholics and Protestants. For 10 points, name this action which many philosophers argue should be legalized in its medically assisted form.",
+    "answer": "committing <u>suicide</u> [accept equivalents like <u>killing oneself</u>; accept philosophical <u>suicide</u>; prompt on <u>dying</u> or <u>death</u>]",
+    "power_index": 52
+  },
+  {
+    "id": "666dc6c89f7c4cfdbd67877a",
+    "category": "Fine Arts",
+    "subcategory": "Auditory Fine Arts",
+    "question": "While in this city, Jan Dussek (“YAHN DOO-sek”) worked with a local manufacturer to expand the piano’s range and received the first 6-octave piano. An Italian composer who primarily worked in this city taught Carl Czerny (“CHAIR-nee”) and John Field and wrote a set of six piano sonatinas in his Opus 36. That composer is Muzio Clementi. To distinguish him from his brother in Hamburg,  J. C. Bach is nicknamed “[this city’s] Bach.” While in this city upon the invitation of Johann Peter Salomon, one composer wrote a symphony in which a fortissimo G major chord interrupts a slow pianissimo melody. The last 12 symphonies of Franz Joseph Haydn are nicknamed for this city. For 10 points, name this city where Handel wrote Water Music for King George I.",
+    "answer": "<u>London</u> [accept the <u>London</u> Bach] (The company mentioned in the first line is Broadwood & Sons, founded by John Broadwood.)",
+    "power_index": 65
+  },
+  {
+    "id": "6406d0dee39f8dfd08fc2623",
+    "category": "Literature",
+    "subcategory": "American Literature",
+    "question": "A 1985 adaptation of this play replaced two characters with the Costazuela brothers. During an argument, one character in this play throws a plate of linguini at a kitchen wall. The two central characters of this play play a poker game with Murray, Speed, Vinnie, and Roy. After a disastrous double date, a neat freak moves in with the English  Pigeon sisters at the end of this play. Felix Ungar moves in with the slob Oscar Madison in, for 10 points, what comedy by Neil Simon.",
+    "answer": "The <u>Odd Couple</u>",
+    "power_index": 60
+  },
+  {
+    "id": "62fdc240c76481561474a41b",
+    "category": "Literature",
+    "subcategory": "World Literature",
+    "question": "Characters in one collection by this author include “The Masked Dyer of Merv”, an Islamic prophet who secretly has leprosy. In one story by this man, a search for missing pages in the Anglo-American Cyclopaedia leads to the discovery of a world whose language contains no nouns. In addition to writing A Universal History of Iniquity, this author created Tlön  and described a spot in Carlos Daneri’s cellar that shows every point in the universe. In another story by this man, Captain Richard Madden pursues a descendent of Ts'ui Pen who ultimately murders Dr. Albert. For 10 points, name this Argentinian author of ‘fictions’, including “The Aleph” and “The Garden of Forking Paths”.",
+    "answer": "Jorge (Francisco Isidoro) Luis <u>Borges</u> (Acevedo)",
+    "power_index": 60
+  },
+  {
+    "id": "62fe9e9bd9499606df43a0e5",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "A diagnostic technique that employs this phenomenon measures relaxation times following the application of 90-degree and 180-degree RF pulses. In a half-open cylinder, this phenomenon arises at characteristic values twice those in a half-open cone, explaining why the clarinet overblows at the twelfth. In an RLC circuit, the frequency described by this term is given by the negative one half power of L times C. In chemistry, this term refers to a way of representing the contribution of delocalized electrons via multiple Lewis structures. For 10 points, give this term which describes systems which oscillate more strongly at some frequencies than others, which is employed in MRI.",
+    "answer": "<u>resonance</u> [accept word forms; accept <u>resonance structure</u>s; accept <u>resonant frequency</u>; accept <u>magnetic resonance</u>] &lt;AS&gt;",
+    "power_index": 500
+  },
+  {
+    "id": "62ed6e71216c5c9ba56755e8",
+    "category": "Literature",
+    "subcategory": "World Literature",
+    "question": "This author’s Jefferson lectures “America and the Diminished Self” and “Poetry and Selfhood” were published as the essay collection Democracy and Poetry. He also wrote a story in which Seth sees his father kick a tramp off his farm and notices a number of incongruities during an unusual cold snap. In a novel by this man, Wilkie Barron kills himself years after Rachel Jordan marries Jeremiah Beaumont on the condition that he kills Colonel Cassius Fort. This author of  “Blackberry Winter” and World Enough and Time wrote a novel whose narrator sometimes goes into “the Great Sleep” and works for a man whose secretary Sadie Burke arranges for him to be shot by Adam Stanton. For 10 points, identify this author who wrote about Jack Burden and Willie Stark in All the King’s Men.",
+    "answer": "Robert Penn <u>Warren</u>",
+    "power_index": 79
+  },
+  {
+    "id": "62f73cec2215f32393144c07",
+    "category": "Fine Arts",
+    "subcategory": "Visual Fine Arts",
+    "question": "A member of this profession, Felix Feneon, names a prestigious prize for both a visual artist and a writer. That member of this profession was painted by Paul Signac. John Everett Millais married Effie Gray, the former wife of a man in this profession, John  Ruskin. In addition to being a celebrated novelist, Emile Zola also had this profession. Another member of this profession, Louis Leroy, famously mocked Monet’s Impression, Sunrise. Men in this profession have coined the terms that are used to describe various artistic movements such as impressionism and fauvism. For 10 points, name this profession that reviews and analyzes works done in media such as painting and sculpture.",
+    "answer": "<u>art critic</u>s [accept word variants; prompt on descriptions and partial answers; prompt on <u>art historian</u>]",
+    "power_index": 45
+  },
+  {
+    "id": "63d895997a0d8ea074be7c93",
+    "category": "Literature",
+    "subcategory": "European Literature",
+    "question": "One of this author’s protagonists receives a nightmare on the day of his father Joseph’s death and meets Mary Magdelene before going to the Sea of Galilee to help some fisherman. He also wrote about Fernando Pessoa living in a hotel and reading newspapers before dying. This author of The Gospel According to Jesus Christ and The  Year of the Death of Ricardo Reis also wrote about the Iberian Peninsula breaking off from Europe and about a doctor’s wife who is not afflicted with the title epidemic. For 10 points, name this Portuguese author of The Stone Raft and Blindness.",
+    "answer": "Jose de Sousa <u>Saramago</u>",
+    "power_index": 57
+  },
+  {
+    "id": "62fe9e9bd9499606df43a6da",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "One theory of this interaction erroneously predicts that its cross section goes as the square of the energy, requiring a UV completion. That theory of this interaction contains a parameter inversely proportional to the square root of the muon lifetime. That theory of this interaction was modified by Gell-Mann and Feynman after an experiment that observed the decay of polarized cobalt-60 atoms. This is the only force that can change quark flavor, and Chien-Shiung  Wu’s experiment showed it can violate CP symmetry. Glashow, Weinberg, and Salam unified it with electromagnetism. For 10 points, name this interaction, mediated by W and Z bosons, responsible for beta decay.",
+    "answer": "<u>weak</u> force [accept <u>weak</u> nuclear force; accept <u>weak</u> interaction]",
+    "power_index": 75
+  },
+  {
+    "id": "62f86328cdb0cbb3f4645cc6",
+    "category": "Fine Arts",
+    "subcategory": "Auditory Fine Arts",
+    "question": "In one work by this composer, the soprano asks, \"Is this perhaps death,\" after which the orchestra quotes from a tone poem that this composer wrote some sixty years earlier. Those works are the Four Last Songs and Death and Transfiguration. He called for twenty horns in his massive An Alpine Symphony. A horn and a D clarinet play themes representing the title trickster of his Till Eulenspiegel’s Merry Pranks. The trumpet motif C-G-C represents a sunrise in one of this man’s tone poems, which was used in the \"Dawn of Man\" sequence in Kubrick’s 2001: A Space Odyssey. For 10 points, name this composer of Also sprach Zarathustra.",
+    "answer": "Richard Georg <u>Strauss</u>",
+    "power_index": 500
+  },
+  {
+    "id": "65de63f0ffe1839107b63729",
+    "category": "Science",
+    "subcategory": "Physics",
+    "question": "Cyclotron radiation is produced when charged particles with a non-zero value for this quantity are deflected by a magnetic field. The power radiated by a point charge is directly proportional to charge squared and this quantity squared according to the Larmor formula. Particles trapped between two magnetic mirrors experience a form of this quantity named for  Fermi. Torque equals moment of inertia times the angular form of this quantity. In centripetal motion, this quantity can be calculated as velocity squared over radius. This quantity is equal to net force divided by mass according to Newton’s Second Law. For 10 points, name this quantity, the rate of change of velocity.",
+    "answer": "<u>acceleration</u>",
+    "power_index": 56
+  },
+  {
+    "id": "66424f511cd113dee4e969a3",
+    "category": "Literature",
+    "subcategory": "American Literature",
+    "question": "This entity first appears in a package labeled “Happy anniversary” sent to a Saudi medical attache. Joelle van Dyne, the deformed Mario, and a man who later committed suicide with a microwave were instrumental in its creation. It was created by James Incandenza, and this entity also called the “samizdat” is pursued by a group of “wheelchair assassins” agitating for Quebec separatism. This entity is so entertaining anyone who watches it wants nothing else, and its name comes from a Hamlet speech addressing Yoric. For 10 points, name this fictional film giving its title to David Foster Wallace’s magnum opus.",
+    "answer": "copies of <u>Infinite Jest</u> (accept “the <u>Entertainment</u>” or “<u>samizdat</u>” before mention)",
+    "power_index": 42
+  },
+  {
+    "id": "62f85b0cdbfff7f0b54adc8b",
+    "category": "Fine Arts",
+    "subcategory": "Visual Fine Arts",
+    "question": "Portraits by an artist from this modern-day country include one of a bearded woman breastfeeding and one of a grinning clubfooted boy. An artist from here painted a dead St. Serapion hanging by his arms. A style of still-life set in the kitchen called bodegón evolved in this country. Yet another artist from this country showed Nicolas Pertusato poking a dog with his leg. That artist from this country showed  Justinus van Nassau handing over keys in his Surrender of Breda, and another of that artist's paintings includes a self-portrait of the artist at his easel, two dwarfs, and several maids of honor. For 10 points, name this home of Jose de Ribera, Francisco de Zurbaran, and the artist of Las Meninas, Diego Velazquez.",
+    "answer": "<u>Spain</u> [or <u>España</u>]",
+    "power_index": 70
+  },
+  {
+    "id": "646fffa69d2ba7804333f918",
+    "category": "History",
+    "subcategory": "American History",
+    "question": "The name of this program was coined by Stuart Chase, an economic adviser. Opponents to this program formed the Conservative Coalition in Congress. The failed Judiciary Reorganization Act was written to aid in appointing justices to the Supreme Court that would support this program. This program established a work relief agency that provided jobs in the development of natural resources called Civilian Conservation Corps, or the CCC. The Wagner Act was one of the first laws passed as part of, for ten points, what program that established the Tennessee Valley Authority and Federal Deposit Insurance Corporation.",
+    "answer": "<u>New Deal</u>",
+    "power_index": 500
+  },
+  {
+    "id": "653c0abd0c0aae1fdb1a4cee",
+    "category": "Literature",
+    "subcategory": "American Literature",
+    "question": "In a short story, a master of this activity is described as a “four-letter man as well as a bloody coward.” The winner of a competition in this activity decides he has “never slept in a better bed.” The “red-faced” Robert Wilson sleeps with the protagonist’s wife after the protagonist proves his cowardice in this activity in a story that ends with  Margot accidentally killing her husband, Francis Macomber. While stranded on Ship-Trap Island, General Zaroff tells Rainsford that this activity has become “too easy.” Richard Connell’s “The Most Dangerous Game” depicts humans as the targets of, for 10 points, what sporting pastime?",
+    "answer": "<u>hunt</u>ing [accept <u>safari</u>; prompt on “The Most Dangerous <u>Game</u>”; prompt on <u>kill</u>ing]",
+    "power_index": 62
+  },
+  {
+    "id": "65d8486856d3474dcdac22e8",
+    "category": "Social Science",
+    "subcategory": "Social Science",
+    "question": "This man contended that economic hypotheses do not need to be “realistic,” and rather, only need to make meaningful predictions in his namesake “twist.” This man responded to John Kenneth Galbraith with his personal statement Free to Choose. In a chapter entitled “The Great Contraction,” this economist and Anna Schwartz criticized the Federal Reserve for not acting as lender of last resort during the  Great Depression. Alongside Edmund Phelps, this economist developed the notion of a “natural rate of unemployment.” This author of A Monetary History of the United States argued that economic freedom is a prerequisite for political freedom in another work. For 10 points, name this author of Capitalism and Freedom who founded the Chicago school of economics.",
+    "answer": "Milton <u>Friedman</u> ",
+    "power_index": 64
+  }
+]
