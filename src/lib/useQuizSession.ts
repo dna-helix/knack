@@ -72,13 +72,13 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     };
     
     if (typeof window !== 'undefined') {
-      // @ts-ignore
+      // @ts-expect-error: Adding to window for debugging
       window._activeUtterances = window._activeUtterances || [];
-      // @ts-ignore
+      // @ts-expect-error: Adding to window for debugging
       window._activeUtterances.push(utterance);
     }
     
-    let keepAliveTimer: any;
+    let keepAliveTimer: ReturnType<typeof setInterval>;
     utterance.onstart = () => {
       keepAliveTimer = setInterval(() => {
         if (typeof window !== 'undefined' && window.speechSynthesis.speaking) {

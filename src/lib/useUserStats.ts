@@ -36,7 +36,7 @@ export function useUserStats() {
     if (stored) {
       try {
         setStats(JSON.parse(stored));
-      } catch (e) {
+      } catch {
         setStats(defaultStats);
       }
     } else {
@@ -44,10 +44,6 @@ export function useUserStats() {
     }
   }, []);
 
-  const saveStats = (newStats: UserStats) => {
-    setStats(newStats);
-    localStorage.setItem("knack_user_stats", JSON.stringify(newStats));
-  };
 
   /**
    * Records a question result.

@@ -25,7 +25,7 @@ function QuizLoader() {
   useEffect(() => {
     import(`@/data/sets/${packId}.json`)
       .then(module => {
-        let qs = [...module.default];
+        const qs = [...module.default];
         if (shouldShuffle) {
           for (let i = qs.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -38,7 +38,7 @@ function QuizLoader() {
          console.error(e);
          import(`@/data/sets/qbreader_set.json`).then(m => setQuestions(m.default));
       });
-  }, [packId]);
+  }, [packId, shouldShuffle]);
 
   if (!questions) {
       return <div className="p-12 mt-20 text-center font-headline text-xl animate-pulse text-on-surface-variant">Loading packet: {packId}...</div>;

@@ -68,7 +68,7 @@ export function parsePromptAnswers(rawAnswer: string): PromptEntry[] {
     }
 
     // Remove the bracket, keyword, conditions like "before mention", and "by asking" clause
-    let inner = group
+    const inner = group
       .replace(/^[\[(]\s*prompt\s+on\s+/i, '')
       .replace(/[\])]$/, '')
       .replace(/\s+before\s+.*/i, '')     // remove "before mention" clauses
@@ -82,7 +82,7 @@ export function parsePromptAnswers(rawAnswer: string): PromptEntry[] {
       // Then split on " or " to handle "ellipse or oval" → ["ellipse", "oval"]
       const orParts = semiPart.split(/\s+or\s+/i);
       for (const part of orParts) {
-        let cleaned = part.replace(/<[^>]+>/g, '').trim();
+        const cleaned = part.replace(/<[^>]+>/g, '').trim();
         // Skip meta-instructions
         if (/reasonable|equivalent|do not|anti|descriptive|partial/i.test(cleaned)) continue;
         if (cleaned) {
@@ -131,7 +131,7 @@ export function parseAcceptableAnswers(rawAnswer: string): string[] {
 
     const parts = inner.split(';');
     for (const part of parts) {
-      let cleaned = part.replace(/<[^>]+>/g, '').trim();
+      const cleaned = part.replace(/<[^>]+>/g, '').trim();
       // Skip meta-instructions
       if (/reasonable|equivalent|prompt|anti|do not/i.test(cleaned)) continue;
       if (cleaned) {
