@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuizSession } from "@/lib/useQuizSession";
+import { useQuizSession, SessionStatus } from "@/lib/useQuizSession";
 import { useState, useEffect, useRef, Suspense, useMemo } from "react";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Question } from "@/lib/types";
@@ -46,6 +46,60 @@ function QuizLoader() {
   return <QuizPageContent questions={questions} packId={packId} initialIndex={startParam} />;
 }
 
+// ── Optimized Question Display Component ──
+interface QuestionDisplayProps {
+  question: string;
+  charIndex: number;
+  status: SessionStatus;
+  powerIndex: number;
+}
+
+function QuestionDisplay({ question, charIndex, status, powerIndex }: QuestionDisplayProps) {
+  const words = useMemo(() => {
+    const results = [];
+    const wordRegex = /\S+/g;
+    let match;
+    let index = 0;
+    while ((match = wordRegex.exec(question)) !== null) {
+      results.push({
+        text: match[0],
+        start: match.index,
+        end: match.index + match[0].length,
+        isPower: index < powerIndex,
+      });
+      index++;
+    }
+    return results;
+  }, [question, powerIndex]);
+
+  return (
+    <p className="font-headline text-xl md:text-4xl leading-relaxed text-primary-container italic opacity-90 mb-8 whitespace-pre-wrap">
+      &quot;
+      {words.map((word, i) => {
+        const isVisible = status === 'finished' || charIndex >= word.end;
+        
+        // In 'finished' state, we show power words in bold/underline
+        const showBold = word.isPower && status === 'finished';
+        
+        return (
+          <span 
+            key={i} 
+            className={`transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+          >
+            {showBold ? (
+              <strong className="font-extrabold underline decoration-primary/30 underline-offset-4">{word.text}</strong>
+            ) : (
+              word.text
+            )}
+            {" "}
+          </span>
+        );
+      })}
+      &quot;
+    </p>
+  );
+}
+
 function QuizPageContent({ questions, packId, initialIndex }: { questions: Question[], packId: string, initialIndex: number }) {
   const { updatePackProgress } = useUserStats();
   const router = useRouter();
@@ -76,16 +130,6 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
   answerInputRef.current = answerInput;
   const submitAnswerRef = useRef(submitAnswer);
   submitAnswerRef.current = submitAnswer;
-
-  // ── Optimization: Pre-calculate question splits ──
-  const questionSplits = useMemo(() => {
-    if (!currentQuestion) return { power: "", rest: "" };
-    const words = currentQuestion.question.trim().split(/\s+/);
-    return {
-      power: words.slice(0, currentQuestion.power_index).join(" "),
-      rest: words.slice(currentQuestion.power_index).join(" ")
-    };
-  }, [currentQuestion]);
 
   // ── 10-second answer timer ──
   const ANSWER_TIME_LIMIT = 10;
@@ -147,8 +191,6 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
   }, [currentQuestionIndex]);
 
   if (!currentQuestion) return <div className="p-8">Loading...</div>;
-
-  const revealedText = currentQuestion.question.substring(0, charIndex);
 
   const handleAnswerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -277,15 +319,12 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
           <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-bl-full -mr-16 -mt-16 pointer-events-none"></div>
           
           <div className="flex-1">
-            <p className="font-headline text-xl md:text-4xl leading-relaxed text-primary-container italic opacity-90 mb-8 whitespace-pre-wrap">
-              {status === 'finished' ? (
-                <>
-                  &quot;<strong className="font-extrabold underline decoration-primary/30 underline-offset-4">{questionSplits.power}</strong> {questionSplits.rest}&quot;
-                </>
-              ) : revealedText.trim() ? (
-                <>&quot;{revealedText}&quot;</>
-              ) : null}
-            </p>
+            <QuestionDisplay 
+              question={currentQuestion.question}
+              charIndex={charIndex}
+              status={status}
+              powerIndex={currentQuestion.power_index}
+            />
             
             {status === 'reading' && (
               <div className="flex items-center gap-4">
