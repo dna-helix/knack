@@ -10,10 +10,14 @@ export type SessionStatus = 'idle' | 'reading' | 'paused' | 'answering' | 'promp
 
 export interface SessionMetrics {
   questionsAnswered: number;
+  correctAnswers: number;
+  wrongAnswers: number;
   powers: number;
   tens: number;
   negs: number;
   missedNoAnswer: number;
+  currentStreak: number;
+  bestStreak: number;
 }
 
 export function useQuizSession(questions: Question[], initialIndex: number = 0, onIndexChange?: (idx: number) => void) {
@@ -24,7 +28,15 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   const [lastResult, setLastResult] = useState<'power' | 'ten' | 'neg' | 'none' | null>(null);
   const [promptMessage, setPromptMessage] = useState('');
   const [sessionMetrics, setSessionMetrics] = useState<SessionMetrics>({
-    questionsAnswered: 0, powers: 0, tens: 0, negs: 0, missedNoAnswer: 0,
+    questionsAnswered: 0,
+    correctAnswers: 0,
+    wrongAnswers: 0,
+    powers: 0,
+    tens: 0,
+    negs: 0,
+    missedNoAnswer: 0,
+    currentStreak: 0,
+    bestStreak: 0,
   });
   
   // Track if we've already counted this question as "seen" in global stats
@@ -38,6 +50,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   const charIndexRef = useRef(0);
   const statusRef = useRef<SessionStatus>('idle');
   const isEstimatedReadingRef = useRef(false);
+  const promptedResultRef = useRef<'power' | 'ten' | null>(null);
   const progressRef = useRef<{
     chunkIndex: number;
     baseCharIndex: number;
@@ -48,6 +61,12 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   } | null>(null);
 
   const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestionDetails = useMemo(() => ({
+    questionId: currentQuestion?.id,
+    question: currentQuestion?.question || '',
+    answer: currentQuestion?.answer || '',
+    subcategory: currentQuestion?.subcategory,
+  }), [currentQuestion]);
 
   useEffect(() => {
     charIndexRef.current = charIndex;
@@ -168,7 +187,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     const currentChunkIndex = questionChunks.findIndex(c => c.end > startingCharIndex);
     if (currentChunkIndex === -1) {
       if (!hasRecordedSeenRef.current) {
-        recordQuestion('none', 0, currentQuestion.category, true);
+        recordQuestion('none', 0, currentQuestion.category, true, currentQuestionDetails);
         hasRecordedSeenRef.current = true;
       }
       setStatus('finished');
@@ -266,7 +285,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     };
 
     speakChunk(currentChunkIndex, startingCharIndex);
-  }, [currentQuestion, questionChunks, recordQuestion, updateCharIndex, estimateUtteranceDurationMs, startProgressTracking, clearSpeechTimers]);
+  }, [currentQuestion, questionChunks, recordQuestion, updateCharIndex, estimateUtteranceDurationMs, startProgressTracking, clearSpeechTimers, currentQuestionDetails]);
 
   const startReading = useCallback(() => {
     if (!currentQuestion || !questionChunks.length) return;
@@ -324,8 +343,13 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
 
   const submitAnswer = useCallback((userAnswer: string) => {
     const result = checkAnswer(userAnswer, currentQuestion.answer);
+    const wordsSpoken = countWordsRevealed(currentQuestion.question, charIndex);
+    const effectivePowerWordIndex = getEffectivePowerWordIndex(currentQuestion.question, currentQuestion.power_index);
+    const currentBuzzResult =
+      effectivePowerWordIndex > 0 && wordsSpoken <= effectivePowerWordIndex ? 'power' : 'ten';
     
     if (result.needsPrompt) {
+      promptedResultRef.current = currentBuzzResult;
       setPromptMessage(result.promptMessage);
       setStatus('prompting');
       return 'prompt' as const;
@@ -335,22 +359,27 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     if (isNewForGlobal) hasRecordedSeenRef.current = true;
 
     if (result.isCorrect) {
-      const wordsSpoken = countWordsRevealed(currentQuestion.question, charIndex);
-      const effectivePowerWordIndex = getEffectivePowerWordIndex(currentQuestion.question, currentQuestion.power_index);
-      const isPower = effectivePowerWordIndex > 0 && wordsSpoken <= effectivePowerWordIndex;
+      const scoredResult = status === 'prompting' && promptedResultRef.current
+        ? promptedResultRef.current
+        : currentBuzzResult;
+      const isPower = scoredResult === 'power';
       const points = isPower ? 15 : 10;
       setScore(s => s + points);
       setStatus('finished');
       updateCharIndex(currentQuestion.question.length);
-      setLastResult(isPower ? 'power' : 'ten');
+      setLastResult(scoredResult);
+      promptedResultRef.current = null;
       
-      recordQuestion(isPower ? 'power' : 'ten', points, currentQuestion.category, isNewForGlobal);
+      recordQuestion(scoredResult, points, currentQuestion.category, isNewForGlobal, currentQuestionDetails);
       
       setSessionMetrics(m => ({
         ...m,
         questionsAnswered: m.questionsAnswered + 1,
+        correctAnswers: m.correctAnswers + 1,
         powers: m.powers + (isPower ? 1 : 0),
         tens: m.tens + (isPower ? 0 : 1),
+        currentStreak: m.currentStreak + 1,
+        bestStreak: Math.max(m.bestStreak, m.currentStreak + 1),
       }));
       return 'correct' as const;
     } else {
@@ -358,23 +387,31 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
       if (isEarly && status !== 'finished' && status !== 'prompting') {
         setScore(s => s - 5);
         setLastResult('neg');
-        recordQuestion('neg', -5, currentQuestion.category, isNewForGlobal);
+        recordQuestion('neg', -5, currentQuestion.category, isNewForGlobal, currentQuestionDetails);
         setStatus('idle');
-        setSessionMetrics(m => ({ ...m, negs: m.negs + 1 }));
+        setSessionMetrics(m => ({
+          ...m,
+          wrongAnswers: m.wrongAnswers + 1,
+          negs: m.negs + 1,
+          currentStreak: 0,
+        }));
       } else {
         setStatus('finished');
         updateCharIndex(currentQuestion.question.length);
         setLastResult('none');
-        recordQuestion('none', 0, currentQuestion.category, isNewForGlobal);
+        promptedResultRef.current = null;
+        recordQuestion('none', 0, currentQuestion.category, isNewForGlobal, currentQuestionDetails);
         setSessionMetrics(m => ({
           ...m,
           questionsAnswered: m.questionsAnswered + 1,
+          wrongAnswers: m.wrongAnswers + 1,
           missedNoAnswer: m.missedNoAnswer + 1,
+          currentStreak: 0,
         }));
       }
       return 'incorrect' as const;
     }
-  }, [currentQuestion, charIndex, status, recordQuestion, updateCharIndex]);
+  }, [currentQuestion, charIndex, status, recordQuestion, updateCharIndex, currentQuestionDetails]);
 
   const nextQuestion = useCallback(() => {
     if (currentQuestionIndex < questions.length - 1) {
@@ -384,6 +421,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
       setStatus('idle');
       setLastResult(null);
       setPromptMessage('');
+      promptedResultRef.current = null;
       hasRecordedSeenRef.current = false;
       setIsEstimatedReading(false);
       stopActiveSpeech();

@@ -22,6 +22,29 @@ ChartJS.register(
   CategoryScale, LinearScale, BarElement,
 );
 
+function getDayPartLabel() {
+  const hour = new Date().getHours();
+
+  if (hour < 12) return "morning";
+  if (hour < 18) return "afternoon";
+  return "evening";
+}
+
+function formatCategoryList(categories: string[]) {
+  if (categories.length === 0) return "";
+  if (categories.length === 1) return categories[0];
+  return `${categories[0]} and ${categories[1]}`;
+}
+
+function toPlainText(text: string) {
+  return text.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function truncate(text: string, maxLength: number) {
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
 export default function Dashboard() {
   const { stats } = useUserStats();
   const [packFilter, setPackFilter] = useState("All");
@@ -31,6 +54,30 @@ export default function Dashboard() {
   const powerRate = stats?.tossupsSeen ? ((stats.powersBuzzed / stats.tossupsSeen) * 100).toFixed(1) : "0.0";
   const avgPoints = stats?.tossupsSeen ? (stats.totalPoints / stats.tossupsSeen).toFixed(2) : "0.00";
   const totalPoints = stats?.totalPoints || 0;
+  const totalCorrect = (stats?.powersBuzzed || 0) + (stats?.tensBuzzed || 0);
+  const overallAccuracy = stats?.tossupsSeen ? Math.round((totalCorrect / stats.tossupsSeen) * 100) : 0;
+  const strongestCategories = stats
+    ? Object.entries(stats.categories)
+        .filter(([, data]) => data.seen > 0 && data.correct > 0)
+        .sort((a, b) => {
+          const accuracyDiff = (b[1].correct / b[1].seen) - (a[1].correct / a[1].seen);
+          if (accuracyDiff !== 0) return accuracyDiff;
+          return b[1].seen - a[1].seen;
+        })
+        .slice(0, 2)
+        .map(([category]) => category)
+    : [];
+  const dayPart = getDayPartLabel();
+  const heroMessage = stats?.tossupsSeen
+    ? `Your ${dayPart} accuracy is ${overallAccuracy}% across ${stats.tossupsSeen} tossups${strongestCategories.length ? `, led by ${formatCategoryList(strongestCategories)}` : ''}. Select a module to begin.`
+    : `Your ${dayPart} session stats will appear here as you practice. Select a module to begin.`;
+  const recentMisses = stats?.recentMisses || [];
+  const recentMissSubjects = Object.entries(
+    recentMisses.reduce<Record<string, number>>((acc, miss) => {
+      acc[miss.category] = (acc[miss.category] || 0) + 1;
+      return acc;
+    }, {})
+  ).sort((a, b) => b[1] - a[1]);
   
   const allCategories = stats ? Object.entries(stats.categories).sort((a,b) => b[1].seen - a[1].seen) : [];
   const categories = chartMode === 'radar' ? allCategories : allCategories.slice(0, 6);
@@ -57,7 +104,7 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-6 py-10 pb-32">
         <div className="mb-12">
           <h2 className="font-headline text-5xl text-primary mb-2 leading-tight">Welcome back, Scholar.</h2>
-          <p className="font-body text-on-surface-variant max-w-2xl">Your morning session performance is currently in the 92nd percentile for Literature and Fine Arts. Select a module to begin.</p>
+          <p className="font-body text-on-surface-variant max-w-2xl">{heroMessage}</p>
         </div>
 
         {/* Knowledge Map */}
@@ -247,6 +294,12 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="flex flex-col">
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary-fixed-dim mb-2">Days Practiced</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-headline font-bold italic">{stats?.streak || 0}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
                     <span className="text-xs font-bold uppercase tracking-widest text-primary-fixed-dim mb-2">Questions Answered</span>
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-headline font-bold italic">{stats?.tossupsSeen || 0}</span>
@@ -254,6 +307,48 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
+            </section>
+
+            <section className="bg-surface-container-low rounded-xl p-8 border border-outline-variant/10">
+              <h3 className="font-headline text-2xl text-primary mb-6">Recent Misses</h3>
+              {recentMisses.length > 0 ? (
+                <div className="space-y-6">
+                  <div className="flex flex-wrap gap-2">
+                    {recentMissSubjects.slice(0, 4).map(([subject, count]) => (
+                      <span
+                        key={subject}
+                        className="rounded-full bg-error-container/60 px-3 py-1 text-xs font-bold uppercase tracking-wide text-on-error-container"
+                      >
+                        {subject} x{count}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="space-y-4">
+                    {recentMisses.slice(0, 5).map(miss => (
+                      <div key={`${miss.questionId}:${miss.recordedAt}`} className="rounded-lg border border-outline-variant/10 bg-surface-container-lowest p-4">
+                        <div className="mb-2 flex items-center justify-between gap-4">
+                          <span className="text-xs font-bold uppercase tracking-widest text-error">
+                            {miss.result === 'neg' ? 'Neg' : 'Dead Tossup'}
+                          </span>
+                          <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                            {miss.category}
+                          </span>
+                        </div>
+                        <p className="font-body text-sm leading-relaxed text-on-surface-variant">
+                          {truncate(miss.question, 150)}
+                        </p>
+                        <p className="mt-2 font-body text-xs uppercase tracking-wide text-slate-500">
+                          Answer: {truncate(toPlainText(miss.answer), 80)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="font-body italic text-on-surface-variant">
+                  Your recent misses will appear here once you start practicing.
+                </p>
+              )}
             </section>
           </div>
         </div>

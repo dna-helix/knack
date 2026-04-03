@@ -6,6 +6,16 @@ export interface CategoryStat {
   correct: number;
 }
 
+export interface RecentMiss {
+  questionId: string;
+  question: string;
+  answer: string;
+  category: string;
+  subcategory?: string;
+  result: 'neg' | 'none';
+  recordedAt: string;
+}
+
 export interface UserStats {
   tossupsSeen: number;
   powersBuzzed: number;
@@ -14,7 +24,9 @@ export interface UserStats {
   totalPoints: number;
   categories: Record<string, CategoryStat>;
   streak: number;
+  practiceDates: string[];
   packProgress: Record<string, number>;
+  recentMisses: RecentMiss[];
 }
 
 const defaultStats: UserStats = {
@@ -25,7 +37,9 @@ const defaultStats: UserStats = {
   totalPoints: 0,
   categories: {},
   streak: 0,
+  practiceDates: [],
   packProgress: {},
+  recentMisses: [],
 };
 
 const STORAGE_KEY = "knack_user_stats";
@@ -35,7 +49,9 @@ function cloneDefaultStats(): UserStats {
   return {
     ...defaultStats,
     categories: {},
+    practiceDates: [],
     packProgress: {},
+    recentMisses: [],
   };
 }
 
@@ -50,7 +66,9 @@ function normalizeStats(input: Partial<UserStats> | null | undefined): UserStats
     totalPoints: input.totalPoints ?? 0,
     categories: input.categories ?? {},
     streak: input.streak ?? 0,
+    practiceDates: input.practiceDates ?? [],
     packProgress: input.packProgress ?? {},
+    recentMisses: input.recentMisses ?? [],
   };
 }
 
@@ -83,8 +101,48 @@ function cloneStats(stats: UserStats): UserStats {
         { ...value },
       ]),
     ),
+    practiceDates: [...stats.practiceDates],
     packProgress: { ...stats.packProgress },
+    recentMisses: stats.recentMisses.map(miss => ({ ...miss })),
   };
+}
+
+interface RecordQuestionDetails {
+  questionId?: string;
+  question: string;
+  answer: string;
+  subcategory?: string;
+}
+
+const MAX_RECENT_MISSES = 8;
+
+function getLocalDateKey(date: Date = new Date()) {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function computePracticeStreak(practiceDates: string[]) {
+  if (practiceDates.length === 0) return 0;
+
+  const uniqueSorted = Array.from(new Set(practiceDates)).sort((a, b) => b.localeCompare(a));
+  let streak = 1;
+  let cursor = new Date(`${uniqueSorted[0]}T12:00:00`);
+
+  for (let index = 1; index < uniqueSorted.length; index += 1) {
+    const previous = new Date(cursor);
+    previous.setDate(previous.getDate() - 1);
+
+    if (getLocalDateKey(previous) !== uniqueSorted[index]) {
+      break;
+    }
+
+    streak += 1;
+    cursor = previous;
+  }
+
+  return streak;
 }
 
 export function useUserStats() {
@@ -123,8 +181,15 @@ export function useUserStats() {
    * @param points - Points awarded (can be negative)
    * @param category - Question category
    * @param isNew - True if this is the first interaction with this unique question
+   * @param details - The question details used for recent miss tracking
    */
-  const recordQuestion = (result: 'power' | 'ten' | 'neg' | 'none', points: number, category: string, isNew: boolean = true) => {
+  const recordQuestion = (
+    result: 'power' | 'ten' | 'neg' | 'none',
+    points: number,
+    category: string,
+    isNew: boolean = true,
+    details?: RecordQuestionDetails,
+  ) => {
     setStats(currentStats => {
         const s = cloneStats(normalizeStats(currentStats));
         
@@ -150,6 +215,24 @@ export function useUserStats() {
         if (result === 'power') s.powersBuzzed += 1;
         if (result === 'ten') s.tensBuzzed += 1;
         if (result === 'neg') s.negsBuzzed += 1;
+        s.practiceDates = Array.from(new Set([getLocalDateKey(), ...s.practiceDates])).sort((a, b) => b.localeCompare(a));
+        s.streak = computePracticeStreak(s.practiceDates);
+
+        if ((result === 'neg' || result === 'none') && details) {
+            const questionId = details.questionId || `${category}:${details.question}`;
+            s.recentMisses = [
+                {
+                    questionId,
+                    question: details.question,
+                    answer: details.answer,
+                    category,
+                    subcategory: details.subcategory,
+                    result,
+                    recordedAt: new Date().toISOString(),
+                },
+                ...s.recentMisses.filter(miss => miss.questionId !== questionId),
+            ].slice(0, MAX_RECENT_MISSES);
+        }
         
         persistStats(s);
         return s;

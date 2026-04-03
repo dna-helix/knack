@@ -53,9 +53,10 @@ interface QuestionDisplayProps {
   charIndex: number;
   status: SessionStatus;
   powerIndex: number;
+  lastResult: 'power' | 'ten' | 'neg' | 'none' | null;
 }
 
-function QuestionDisplay({ question, charIndex, status, powerIndex }: QuestionDisplayProps) {
+function QuestionDisplay({ question, charIndex, status, powerIndex, lastResult }: QuestionDisplayProps) {
   const words = useMemo(() => {
     const effectivePowerWordIndex = getEffectivePowerWordIndex(question, powerIndex);
 
@@ -70,9 +71,7 @@ function QuestionDisplay({ question, charIndex, status, powerIndex }: QuestionDi
       &quot;
       {words.map((word, i) => {
         const isVisible = status === 'finished' || charIndex > word.start;
-        
-        // In 'finished' state, we show power words in bold/underline
-        const showBold = word.isPower && status === 'finished';
+        const showBold = word.isPower && status === 'finished' && lastResult === 'power';
         
         return (
           <span 
@@ -318,6 +317,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
               charIndex={charIndex}
               status={status}
               powerIndex={currentQuestion.power_index}
+              lastResult={lastResult}
             />
             
             {status === 'reading' && (
@@ -434,22 +434,26 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
           </div>
         </section>
 
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-6 gap-3">
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Points</span>
             <span className="font-headline text-2xl font-bold text-on-tertiary-container">{score > 0 ? `+${score}` : score}</span>
           </div>
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
-            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Answered</span>
-            <span className="font-headline text-2xl font-bold">{sessionMetrics.questionsAnswered}</span>
+            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Right</span>
+            <span className="font-headline text-2xl font-bold text-secondary">{sessionMetrics.correctAnswers}</span>
+          </div>
+          <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
+            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Wrong</span>
+            <span className="font-headline text-2xl font-bold text-error">{sessionMetrics.wrongAnswers}</span>
           </div>
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Powers</span>
             <span className="font-headline text-2xl font-bold text-secondary">{sessionMetrics.powers}</span>
           </div>
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
-            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Negs</span>
-            <span className="font-headline text-2xl font-bold text-error">{sessionMetrics.negs}</span>
+            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Streak</span>
+            <span className="font-headline text-2xl font-bold text-primary">{sessionMetrics.currentStreak}</span>
           </div>
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Accuracy</span>
