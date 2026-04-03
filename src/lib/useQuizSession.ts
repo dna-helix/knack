@@ -32,8 +32,33 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
 
   const { recordQuestion } = useUserStats();
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const keepAliveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const charIndexRef = useRef(0);
+  const statusRef = useRef<SessionStatus>('idle');
+  const isEstimatedReadingRef = useRef(false);
+  const progressRef = useRef<{
+    chunkIndex: number;
+    baseCharIndex: number;
+    chunkEnd: number;
+    startedAt: number;
+    estimatedDurationMs: number;
+    lastBoundaryAt: number | null;
+  } | null>(null);
 
   const currentQuestion = questions[currentQuestionIndex];
+
+  useEffect(() => {
+    charIndexRef.current = charIndex;
+  }, [charIndex]);
+
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
+
+  useEffect(() => {
+    isEstimatedReadingRef.current = isEstimatedReading;
+  }, [isEstimatedReading]);
 
   // ── Chunking Logic for Mobile Reliability ──
   const questionChunks = useMemo(() => {
@@ -49,59 +74,97 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     }));
   }, [currentQuestion]);
 
+  const clearSpeechTimers = useCallback(() => {
+    if (keepAliveTimerRef.current) {
+      clearInterval(keepAliveTimerRef.current);
+      keepAliveTimerRef.current = null;
+    }
+    if (progressTimerRef.current) {
+      clearInterval(progressTimerRef.current);
+      progressTimerRef.current = null;
+    }
+    progressRef.current = null;
+  }, []);
+
+  const updateCharIndex = useCallback((nextIndex: number) => {
+    if (!currentQuestion) return;
+    const clamped = Math.max(0, Math.min(nextIndex, currentQuestion.question.length));
+    charIndexRef.current = clamped;
+    setCharIndex(prev => (prev === clamped ? prev : clamped));
+  }, [currentQuestion]);
+
+  const estimateUtteranceDurationMs = useCallback((text: string, rate: number) => {
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    const punctuationPauses = (text.match(/[,:;()]/g) || []).length * 120;
+    const sentencePauses = (text.match(/[.?!]/g) || []).length * 220;
+    const normalizedRate = Math.max(rate || 1, 0.6);
+
+    return Math.max(500, ((words * 340) + punctuationPauses + sentencePauses) / normalizedRate);
+  }, []);
+
+  const startProgressTracking = useCallback((chunkIndex: number, baseCharIndex: number, chunkEnd: number, estimatedDurationMs: number) => {
+    if (progressTimerRef.current) {
+      clearInterval(progressTimerRef.current);
+    }
+
+    progressRef.current = {
+      chunkIndex,
+      baseCharIndex,
+      chunkEnd,
+      startedAt: Date.now(),
+      estimatedDurationMs,
+      lastBoundaryAt: null,
+    };
+
+    progressTimerRef.current = setInterval(() => {
+      const progress = progressRef.current;
+      if (!progress || statusRef.current !== 'reading') return;
+
+      const now = Date.now();
+      const elapsed = now - progress.startedAt;
+      const timeSinceBoundary = progress.lastBoundaryAt === null ? Infinity : now - progress.lastBoundaryAt;
+      const shouldEstimate = elapsed > 250 && timeSinceBoundary > 450;
+
+      if (!shouldEstimate) {
+        if (isEstimatedReadingRef.current) {
+          isEstimatedReadingRef.current = false;
+          setIsEstimatedReading(false);
+        }
+        return;
+      }
+
+      if (!isEstimatedReadingRef.current) {
+        isEstimatedReadingRef.current = true;
+        setIsEstimatedReading(true);
+      }
+
+      const progressRatio = Math.min(1, elapsed / progress.estimatedDurationMs);
+      const estimatedIndex = progress.baseCharIndex + Math.floor((progress.chunkEnd - progress.baseCharIndex) * progressRatio);
+
+      if (estimatedIndex > charIndexRef.current) {
+        updateCharIndex(estimatedIndex);
+      }
+    }, 50);
+  }, [updateCharIndex]);
+
   const stopActiveSpeech = useCallback(() => {
+    clearSpeechTimers();
+    isEstimatedReadingRef.current = false;
+    setIsEstimatedReading(false);
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
     utteranceRef.current = null;
-  }, []);
+  }, [clearSpeechTimers]);
 
   useEffect(() => {
     return () => { stopActiveSpeech(); }
   }, [stopActiveSpeech]);
 
-  // Heartbeat for browsers that don't support onboundary (Mobile Brave/Chrome)
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    
-    if (status === 'reading') {
-      const startTime = Date.now();
-      const initialCharIndex = charIndex;
-      
-      interval = setInterval(() => {
-        const now = Date.now();
-        const elapsed = now - startTime;
-        
-        // Mobile fix: Lower delay from 1200ms to 400ms for faster "Estimated Reveal" takeover
-        if (charIndex === initialCharIndex && elapsed > 400 && !isEstimatedReading) {
-          setIsEstimatedReading(true);
-        }
-        
-        if (isEstimatedReading) {
-          // Average NAQT reading speed: ~18 chars per second
-          // Using slightly adjusted multiplier to feel continuous across chunks
-          const charsToReveal = initialCharIndex + Math.floor(elapsed / 55); 
-          if (charsToReveal > charIndex) {
-            setCharIndex(Math.min(charsToReveal, currentQuestion.question.length));
-          }
-        }
-      }, 150);
-    }
-    
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [status, isEstimatedReading, charIndex, currentQuestion?.question.length]);
-
-  const startReading = useCallback(() => {
+  const beginSpeakingFrom = useCallback((startingCharIndex: number) => {
     if (!currentQuestion || !questionChunks.length) return;
-    if (status === 'finished') return;
-    
-    stopActiveSpeech();
-    setIsEstimatedReading(false);
-    
-    // Find the first chunk that hasn't been fully read yet
-    const currentChunkIndex = questionChunks.findIndex(c => c.end > charIndex);
+
+    const currentChunkIndex = questionChunks.findIndex(c => c.end > startingCharIndex);
     if (currentChunkIndex === -1) {
       if (!hasRecordedSeenRef.current) {
         recordQuestion('none', 0, currentQuestion.category, true);
@@ -111,77 +174,147 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
       return;
     }
 
-    const chunk = questionChunks[currentChunkIndex];
-    const offsetInChunk = Math.max(0, charIndex - chunk.start);
-    const textToSpeak = chunk.text.substring(offsetInChunk);
+    const speakChunk = (chunkIndex: number, startIndex: number) => {
+      const chunk = questionChunks[chunkIndex];
+      if (!chunk) {
+        setStatus('answering');
+        return;
+      }
 
-    if (!textToSpeak.trim()) {
-       // Move to next chunk if this one is empty/done
-       setCharIndex(chunk.end);
-       setTimeout(startReading, 0); // Recurse to next chunk
-       return;
-    }
+      const offsetInChunk = Math.max(0, startIndex - chunk.start);
+      const textToSpeak = chunk.text.substring(offsetInChunk);
 
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utteranceRef.current = utterance;
-    const baseCharIndex = charIndex;
-    
-    utterance.onboundary = (event) => {
-      if (event.name === 'word') {
+      if (!textToSpeak.trim()) {
+        updateCharIndex(chunk.end);
+        speakChunk(chunkIndex + 1, chunk.end);
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utteranceRef.current = utterance;
+      const baseCharIndex = Math.max(startIndex, chunk.start);
+      const estimatedDurationMs = estimateUtteranceDurationMs(textToSpeak, utterance.rate);
+
+      utterance.onboundary = (event) => {
+        progressRef.current = progressRef.current
+          ? { ...progressRef.current, lastBoundaryAt: Date.now() }
+          : progressRef.current;
+
+        isEstimatedReadingRef.current = false;
         setIsEstimatedReading(false);
-        setCharIndex(baseCharIndex + event.charIndex);
-      }
-    };
-    
-    // @ts-expect-error: Garbage collection prevention
-    window._activeUtterances = window._activeUtterances || [];
-    // @ts-expect-error: Garbage collection prevention
-    window._activeUtterances.push(utterance);
-    
-    let keepAliveTimer: ReturnType<typeof setInterval>;
-    utterance.onstart = () => {
-      keepAliveTimer = setInterval(() => {
-        if (typeof window !== 'undefined' && window.speechSynthesis.speaking) {
-          window.speechSynthesis.pause();
-          window.speechSynthesis.resume();
-        }
-      }, 10000); // More aggressive keep-alive
-    };
-    
-    utterance.onend = () => {
-      if (keepAliveTimer) clearInterval(keepAliveTimer);
-      if (utteranceRef.current === utterance) {
-        setCharIndex(chunk.end);
-        // If there are more chunks, start the next one. Otherwise, finish.
-        if (currentChunkIndex < questionChunks.length - 1) {
-            startReading();
-        } else {
-            setStatus('answering');
-        }
-      }
-    };
-    
-    utterance.onerror = (e) => {
-      if (keepAliveTimer) clearInterval(keepAliveTimer);
-      if (e.error !== 'canceled') {
-        console.warn("Speech synthesis error:", e);
-        // On error, try to skip to next chunk if it wasn't a manual cancel
-        setCharIndex(chunk.end);
-        startReading();
-      }
-    };
 
-    setStatus('reading');
-    if (typeof window !== 'undefined') {
+        if (event.name === 'word') {
+          updateCharIndex(baseCharIndex + event.charIndex + 1);
+        }
+      };
+
+      // @ts-expect-error: Garbage collection prevention
+      window._activeUtterances = window._activeUtterances || [];
+      // @ts-expect-error: Garbage collection prevention
+      window._activeUtterances.push(utterance);
+
+      utterance.onstart = () => {
+        startProgressTracking(chunkIndex, baseCharIndex, chunk.end, estimatedDurationMs);
+
+        keepAliveTimerRef.current = setInterval(() => {
+          if (typeof window !== 'undefined' && window.speechSynthesis.speaking) {
+            window.speechSynthesis.pause();
+            window.speechSynthesis.resume();
+          }
+        }, 10000);
+      };
+
+      utterance.onend = () => {
+        if (utteranceRef.current !== utterance) return;
+
+        clearSpeechTimers();
+        updateCharIndex(chunk.end);
+
+        if (chunkIndex < questionChunks.length - 1) {
+          speakChunk(chunkIndex + 1, chunk.end);
+          return;
+        }
+
+        utteranceRef.current = null;
+        setStatus('answering');
+      };
+
+      utterance.onerror = (e) => {
+        if (utteranceRef.current !== utterance) return;
+
+        clearSpeechTimers();
+
+        if (e.error !== 'canceled') {
+          console.warn("Speech synthesis error:", e);
+          updateCharIndex(chunk.end);
+
+          if (chunkIndex < questionChunks.length - 1) {
+            speakChunk(chunkIndex + 1, chunk.end);
+          } else {
+            utteranceRef.current = null;
+            setStatus('answering');
+          }
+        }
+      };
+
+      setStatus('reading');
+      if (typeof window !== 'undefined') {
         window.speechSynthesis.resume();
         window.speechSynthesis.speak(utterance);
+      }
+    };
+
+    speakChunk(currentChunkIndex, startingCharIndex);
+  }, [currentQuestion, questionChunks, recordQuestion, updateCharIndex, estimateUtteranceDurationMs, startProgressTracking, clearSpeechTimers]);
+
+  const startReading = useCallback(() => {
+    if (!currentQuestion || !questionChunks.length) return;
+    if (status === 'finished') return;
+
+    const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
+
+    if (status === 'paused' && synth && utteranceRef.current) {
+      const activeProgress = progressRef.current;
+
+      if (activeProgress) {
+        const remainingText = currentQuestion.question.slice(charIndexRef.current, activeProgress.chunkEnd);
+        startProgressTracking(
+          activeProgress.chunkIndex,
+          charIndexRef.current,
+          activeProgress.chunkEnd,
+          estimateUtteranceDurationMs(remainingText, utteranceRef.current.rate),
+        );
+      }
+
+      setStatus('reading');
+      synth.resume();
+
+      window.setTimeout(() => {
+        if (statusRef.current !== 'reading') return;
+        if (synth.speaking || synth.pending) return;
+
+        stopActiveSpeech();
+        beginSpeakingFrom(charIndexRef.current);
+      }, 150);
+
+      return;
     }
-  }, [currentQuestion, questionChunks, charIndex, status, stopActiveSpeech, recordQuestion]);
+
+    stopActiveSpeech();
+    beginSpeakingFrom(charIndexRef.current);
+  }, [currentQuestion, questionChunks, status, stopActiveSpeech, beginSpeakingFrom, startProgressTracking, estimateUtteranceDurationMs]);
 
   const pauseReading = useCallback(() => {
-    stopActiveSpeech();
+    clearSpeechTimers();
+    isEstimatedReadingRef.current = false;
+    setIsEstimatedReading(false);
+
+    if (typeof window !== 'undefined' && window.speechSynthesis && utteranceRef.current) {
+      window.speechSynthesis.pause();
+    }
+
     setStatus('paused');
-  }, [stopActiveSpeech]);
+  }, [clearSpeechTimers]);
 
   const buzz = useCallback(() => {
     stopActiveSpeech();
@@ -206,7 +339,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
       const points = isPower ? 15 : 10;
       setScore(s => s + points);
       setStatus('finished');
-      setCharIndex(currentQuestion.question.length);
+      updateCharIndex(currentQuestion.question.length);
       setLastResult(isPower ? 'power' : 'ten');
       
       recordQuestion(isPower ? 'power' : 'ten', points, currentQuestion.category, isNewForGlobal);
@@ -228,7 +361,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
         setSessionMetrics(m => ({ ...m, negs: m.negs + 1 }));
       } else {
         setStatus('finished');
-        setCharIndex(currentQuestion.question.length);
+        updateCharIndex(currentQuestion.question.length);
         setLastResult('none');
         recordQuestion('none', 0, currentQuestion.category, isNewForGlobal);
         setSessionMetrics(m => ({
@@ -239,13 +372,13 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
       }
       return 'incorrect' as const;
     }
-  }, [currentQuestion, charIndex, status, recordQuestion]);
+  }, [currentQuestion, charIndex, status, recordQuestion, updateCharIndex]);
 
   const nextQuestion = useCallback(() => {
     if (currentQuestionIndex < questions.length - 1) {
       const nextIdx = currentQuestionIndex + 1;
       setCurrentQuestionIndex(nextIdx);
-      setCharIndex(0);
+      updateCharIndex(0);
       setStatus('idle');
       setLastResult(null);
       setPromptMessage('');
@@ -256,7 +389,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     } else {
       if (onIndexChange) onIndexChange(0);
     }
-  }, [currentQuestionIndex, questions.length, stopActiveSpeech, onIndexChange]);
+  }, [currentQuestionIndex, questions.length, stopActiveSpeech, onIndexChange, updateCharIndex]);
 
   return {
     currentQuestion,

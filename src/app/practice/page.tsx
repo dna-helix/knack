@@ -76,7 +76,7 @@ function QuestionDisplay({ question, charIndex, status, powerIndex }: QuestionDi
     <p className="font-headline text-xl md:text-4xl leading-relaxed text-primary-container italic opacity-90 mb-8 whitespace-pre-wrap">
       &quot;
       {words.map((word, i) => {
-        const isVisible = status === 'finished' || charIndex >= word.end;
+        const isVisible = status === 'finished' || charIndex > word.start;
         
         // In 'finished' state, we show power words in bold/underline
         const showBold = word.isPower && status === 'finished';
