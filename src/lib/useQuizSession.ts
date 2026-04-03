@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Question } from './types';
 import { checkAnswer } from './answerChecker';
 import { useUserStats } from './useUserStats';
@@ -35,36 +35,52 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
 
   const currentQuestion = questions[currentQuestionIndex];
 
+  // ── Chunking Logic for Mobile Reliability ──
+  const questionChunks = useMemo(() => {
+    if (!currentQuestion) return [];
+    // Split by sentence boundaries (periods, question marks, exclamation points followed by whitespace)
+    const sentenceRegex = /[^.?!]+[.?!]+(?:\s+|$)|[^.?!]+(?:\s+|$)/g;
+    const matches = Array.from(currentQuestion.question.matchAll(sentenceRegex));
+    
+    return matches.map(match => ({
+      text: match[0],
+      start: match.index!,
+      end: match.index! + match[0].length
+    }));
+  }, [currentQuestion]);
+
   const stopActiveSpeech = useCallback(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
+    utteranceRef.current = null;
   }, []);
 
   useEffect(() => {
     return () => { stopActiveSpeech(); }
   }, [stopActiveSpeech]);
 
-  // Fallback for browsers that don't support onboundary (Mobile Brave/Chrome)
+  // Heartbeat for browsers that don't support onboundary (Mobile Brave/Chrome)
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     
     if (status === 'reading') {
       const startTime = Date.now();
+      const initialCharIndex = charIndex;
       
       interval = setInterval(() => {
         const now = Date.now();
         const elapsed = now - startTime;
         
-        // If charIndex hasn't moved via onboundary and 1.2s has passed, or we're already estimating
-        if (charIndex === 0 && elapsed > 1200 && !isEstimatedReading) {
+        // Mobile fix: Lower delay from 1200ms to 400ms for faster "Estimated Reveal" takeover
+        if (charIndex === initialCharIndex && elapsed > 400 && !isEstimatedReading) {
           setIsEstimatedReading(true);
         }
         
         if (isEstimatedReading) {
-          // Average NAQT reading speed: ~18 chars per second (approx 4 words/sec)
-          // Using 150ms interval to reduce render load on mobile
-          const charsToReveal = Math.floor(elapsed / 55); 
+          // Average NAQT reading speed: ~18 chars per second
+          // Using slightly adjusted multiplier to feel continuous across chunks
+          const charsToReveal = initialCharIndex + Math.floor(elapsed / 55); 
           if (charsToReveal > charIndex) {
             setCharIndex(Math.min(charsToReveal, currentQuestion.question.length));
           }
@@ -78,14 +94,15 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   }, [status, isEstimatedReading, charIndex, currentQuestion?.question.length]);
 
   const startReading = useCallback(() => {
-    if (!currentQuestion) return;
+    if (!currentQuestion || !questionChunks.length) return;
     if (status === 'finished') return;
     
     stopActiveSpeech();
-    setIsEstimatedReading(false); // Reset fallback on fresh start
+    setIsEstimatedReading(false);
     
-    const textToSpeak = currentQuestion.question.substring(charIndex);
-    if (!textToSpeak.trim()) {
+    // Find the first chunk that hasn't been fully read yet
+    const currentChunkIndex = questionChunks.findIndex(c => c.end > charIndex);
+    if (currentChunkIndex === -1) {
       if (!hasRecordedSeenRef.current) {
         recordQuestion('none', 0, currentQuestion.category, true);
         hasRecordedSeenRef.current = true;
@@ -94,24 +111,32 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
       return;
     }
 
+    const chunk = questionChunks[currentChunkIndex];
+    const offsetInChunk = Math.max(0, charIndex - chunk.start);
+    const textToSpeak = chunk.text.substring(offsetInChunk);
+
+    if (!textToSpeak.trim()) {
+       // Move to next chunk if this one is empty/done
+       setCharIndex(chunk.end);
+       setTimeout(startReading, 0); // Recurse to next chunk
+       return;
+    }
+
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utteranceRef.current = utterance;
     const baseCharIndex = charIndex;
     
     utterance.onboundary = (event) => {
       if (event.name === 'word') {
-        // If onboundary works, ensure we stop estimating and use real boundary
         setIsEstimatedReading(false);
         setCharIndex(baseCharIndex + event.charIndex);
       }
     };
     
-    if (typeof window !== 'undefined') {
-      // @ts-expect-error: Adding to window for debugging
-      window._activeUtterances = window._activeUtterances || [];
-      // @ts-expect-error: Adding to window for debugging
-      window._activeUtterances.push(utterance);
-    }
+    // @ts-expect-error: Garbage collection prevention
+    window._activeUtterances = window._activeUtterances || [];
+    // @ts-expect-error: Garbage collection prevention
+    window._activeUtterances.push(utterance);
     
     let keepAliveTimer: ReturnType<typeof setInterval>;
     utterance.onstart = () => {
@@ -120,14 +145,19 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
           window.speechSynthesis.pause();
           window.speechSynthesis.resume();
         }
-      }, 14000);
+      }, 10000); // More aggressive keep-alive
     };
     
     utterance.onend = () => {
       if (keepAliveTimer) clearInterval(keepAliveTimer);
       if (utteranceRef.current === utterance) {
-        setCharIndex(currentQuestion.question.length);
-        setStatus('answering');
+        setCharIndex(chunk.end);
+        // If there are more chunks, start the next one. Otherwise, finish.
+        if (currentChunkIndex < questionChunks.length - 1) {
+            startReading();
+        } else {
+            setStatus('answering');
+        }
       }
     };
     
@@ -135,16 +165,18 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
       if (keepAliveTimer) clearInterval(keepAliveTimer);
       if (e.error !== 'canceled') {
         console.warn("Speech synthesis error:", e);
+        // On error, try to skip to next chunk if it wasn't a manual cancel
+        setCharIndex(chunk.end);
+        startReading();
       }
     };
 
     setStatus('reading');
-    // Mobile fix: Always resume before speaking to ensure engine readiness
     if (typeof window !== 'undefined') {
         window.speechSynthesis.resume();
         window.speechSynthesis.speak(utterance);
     }
-  }, [currentQuestion, charIndex, status, stopActiveSpeech, recordQuestion]);
+  }, [currentQuestion, questionChunks, charIndex, status, stopActiveSpeech, recordQuestion]);
 
   const pauseReading = useCallback(() => {
     stopActiveSpeech();
