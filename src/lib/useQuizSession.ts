@@ -50,7 +50,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   const charIndexRef = useRef(0);
   const statusRef = useRef<SessionStatus>('idle');
   const isEstimatedReadingRef = useRef(false);
-  const promptedResultRef = useRef<'power' | 'ten' | null>(null);
+  const promptedScoringRef = useRef<{ result: 'power' | 'ten'; points: 10 | 15 } | null>(null);
   const progressRef = useRef<{
     chunkIndex: number;
     baseCharIndex: number;
@@ -341,15 +341,34 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     setStatus('answering');
   }, [stopActiveSpeech]);
 
+  const endQuestion = useCallback(() => {
+    stopActiveSpeech();
+    promptedScoringRef.current = null;
+    updateCharIndex(currentQuestion.question.length);
+    setStatus('finished');
+  }, [currentQuestion, stopActiveSpeech, updateCharIndex]);
+
+  const retryQuestion = useCallback(() => {
+    stopActiveSpeech();
+    promptedScoringRef.current = null;
+    setStatus('idle');
+    setLastResult(null);
+    setPromptMessage('');
+  }, [stopActiveSpeech]);
+
   const submitAnswer = useCallback((userAnswer: string) => {
     const result = checkAnswer(userAnswer, currentQuestion.answer);
     const wordsSpoken = countWordsRevealed(currentQuestion.question, charIndex);
     const effectivePowerWordIndex = getEffectivePowerWordIndex(currentQuestion.question, currentQuestion.power_index);
     const currentBuzzResult =
       effectivePowerWordIndex > 0 && wordsSpoken <= effectivePowerWordIndex ? 'power' : 'ten';
+    const currentBuzzPoints: 10 | 15 = currentBuzzResult === 'power' ? 15 : 10;
     
     if (result.needsPrompt) {
-      promptedResultRef.current = currentBuzzResult;
+      promptedScoringRef.current = {
+        result: currentBuzzResult,
+        points: currentBuzzPoints,
+      };
       setPromptMessage(result.promptMessage);
       setStatus('prompting');
       return 'prompt' as const;
@@ -359,16 +378,15 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     if (isNewForGlobal) hasRecordedSeenRef.current = true;
 
     if (result.isCorrect) {
-      const scoredResult = status === 'prompting' && promptedResultRef.current
-        ? promptedResultRef.current
-        : currentBuzzResult;
+      const promptedScoring = status === 'prompting' ? promptedScoringRef.current : null;
+      const scoredResult = promptedScoring ? promptedScoring.result : currentBuzzResult;
       const isPower = scoredResult === 'power';
-      const points = isPower ? 15 : 10;
+      const points = promptedScoring ? promptedScoring.points : currentBuzzPoints;
       setScore(s => s + points);
       setStatus('finished');
       updateCharIndex(currentQuestion.question.length);
       setLastResult(scoredResult);
-      promptedResultRef.current = null;
+      promptedScoringRef.current = null;
       
       recordQuestion(scoredResult, points, currentQuestion.category, isNewForGlobal, currentQuestionDetails);
       
@@ -399,7 +417,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
         setStatus('finished');
         updateCharIndex(currentQuestion.question.length);
         setLastResult('none');
-        promptedResultRef.current = null;
+        promptedScoringRef.current = null;
         recordQuestion('none', 0, currentQuestion.category, isNewForGlobal, currentQuestionDetails);
         setSessionMetrics(m => ({
           ...m,
@@ -421,7 +439,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
       setStatus('idle');
       setLastResult(null);
       setPromptMessage('');
-      promptedResultRef.current = null;
+      promptedScoringRef.current = null;
       hasRecordedSeenRef.current = false;
       setIsEstimatedReading(false);
       stopActiveSpeech();
@@ -444,6 +462,8 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     startReading,
     pauseReading,
     buzz,
+    endQuestion,
+    retryQuestion,
     submitAnswer,
     nextQuestion,
     stopActiveSpeech,

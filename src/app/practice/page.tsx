@@ -108,6 +108,8 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
     startReading,
     pauseReading,
     buzz,
+    endQuestion,
+    retryQuestion,
     submitAnswer,
     nextQuestion,
     stopActiveSpeech,
@@ -216,6 +218,13 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
     stopActiveSpeech();
     updatePackProgress(packId, currentQuestionIndex);
     router.push('/');
+  };
+
+  const handleKeepTrying = () => {
+    setFeedback(null);
+    setAnswerInput("");
+    retryQuestion();
+    startReading();
   };
 
   const startListening = () => {
@@ -375,6 +384,20 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
                     <p className="font-body text-on-surface-variant text-base">
                       {feedback.message} Since there is still question text remaining, you can resume reading or skip to the next question.
                     </p>
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      <button
+                        onClick={handleKeepTrying}
+                        className="bg-primary text-white py-3 px-5 rounded-lg font-bold transition-colors hover:bg-primary/90"
+                      >
+                        Keep trying
+                      </button>
+                      <button
+                        onClick={endQuestion}
+                        className="bg-error text-white py-3 px-5 rounded-lg font-bold transition-colors hover:bg-error/90"
+                      >
+                        End Question
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
