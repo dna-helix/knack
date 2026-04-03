@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, Suspense, useMemo } from "react";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Question } from "@/lib/types";
 import { useUserStats } from "@/lib/useUserStats";
+import { getEffectivePowerWordIndex, getQuestionWords } from "@/lib/powerIndex";
 
 export default function QuizPage() {
   return (
@@ -56,20 +57,12 @@ interface QuestionDisplayProps {
 
 function QuestionDisplay({ question, charIndex, status, powerIndex }: QuestionDisplayProps) {
   const words = useMemo(() => {
-    const results = [];
-    const wordRegex = /\S+/g;
-    let match;
-    let index = 0;
-    while ((match = wordRegex.exec(question)) !== null) {
-      results.push({
-        text: match[0],
-        start: match.index,
-        end: match.index + match[0].length,
-        isPower: index < powerIndex,
-      });
-      index++;
-    }
-    return results;
+    const effectivePowerWordIndex = getEffectivePowerWordIndex(question, powerIndex);
+
+    return getQuestionWords(question).map((word, index) => ({
+      ...word,
+      isPower: effectivePowerWordIndex > 0 && index < effectivePowerWordIndex,
+    }));
   }, [question, powerIndex]);
 
   return (
@@ -222,6 +215,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
 
   const handleExit = () => {
     stopActiveSpeech();
+    updatePackProgress(packId, currentQuestionIndex);
     router.push('/');
   };
 

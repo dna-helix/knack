@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Question } from './types';
 import { checkAnswer } from './answerChecker';
 import { useUserStats } from './useUserStats';
+import { countWordsRevealed, getEffectivePowerWordIndex } from './powerIndex';
 
 export type SessionStatus = 'idle' | 'reading' | 'paused' | 'answering' | 'prompting' | 'finished';
 
@@ -334,8 +335,9 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     if (isNewForGlobal) hasRecordedSeenRef.current = true;
 
     if (result.isCorrect) {
-      const wordsSpoken = currentQuestion.question.substring(0, charIndex).trim().split(/\s+/).length;
-      const isPower = wordsSpoken <= currentQuestion.power_index;
+      const wordsSpoken = countWordsRevealed(currentQuestion.question, charIndex);
+      const effectivePowerWordIndex = getEffectivePowerWordIndex(currentQuestion.question, currentQuestion.power_index);
+      const isPower = effectivePowerWordIndex > 0 && wordsSpoken <= effectivePowerWordIndex;
       const points = isPower ? 15 : 10;
       setScore(s => s + points);
       setStatus('finished');
