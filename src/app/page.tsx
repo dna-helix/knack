@@ -61,6 +61,29 @@ function renderDifficultyFires(level: number) {
   );
 }
 
+function renderProgressRing(progressPercent: number) {
+  const clampedPercent = Math.max(0, Math.min(100, progressPercent));
+
+  return (
+    <div
+      className="relative flex h-12 w-12 items-center justify-center rounded-full bg-surface-container-lowest/90 shadow-sm"
+      title={`${clampedPercent}% complete`}
+      aria-label={`${clampedPercent}% complete`}
+    >
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: `conic-gradient(rgb(34 197 94) ${clampedPercent * 3.6}deg, rgba(148, 163, 184, 0.18) 0deg)`,
+        }}
+      />
+      <div className="absolute inset-[4px] rounded-full bg-surface-container-lowest" />
+      <span className="relative z-10 text-[10px] font-bold tracking-wide text-emerald-600">
+        {clampedPercent}%
+      </span>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { stats } = useUserStats();
   const [packFilter, setPackFilter] = useState("All");
@@ -255,11 +278,14 @@ export default function Dashboard() {
                 {packCatalog.filter(p => packFilter === 'All' || p.focus === packFilter).map(pack => {
                   const progress = stats?.packProgress?.[pack.id] || 0;
                   const difficultyLevel = getPackDifficultyLevel(pack);
+                  const progressPercent = pack.questionCount > 0
+                    ? Math.round(Math.min(100, (progress / pack.questionCount) * 100))
+                    : 0;
                   return (
                   <div key={pack.id} className="group flex flex-col items-start p-6 bg-surface-container-lowest rounded-lg text-left transition-all duration-150 border border-outline-variant/10 hover:border-outline-variant/30 hover:shadow-xl hover:shadow-primary-container/5 relative">
                     {progress > 0 && (
-                       <div className="absolute top-4 right-4 bg-tertiary-fixed text-on-tertiary-container text-[10px] font-bold px-2 py-1 rounded-full">
-                          ON Q{progress + 1}
+                       <div className="absolute top-4 right-4">
+                          {renderProgressRing(progressPercent)}
                        </div>
                     )}
                     <div className={`text-white p-3 rounded-lg mb-4 ${pack.focus.toLowerCase() === 'history' ? 'bg-blue-800' : pack.focus.toLowerCase() === 'science' ? 'bg-emerald-800' : pack.focus.toLowerCase() === 'literature' ? 'bg-purple-800' : 'bg-secondary'}`}>
