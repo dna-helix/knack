@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { RecentMiss, useUserStats } from "@/lib/useUserStats";
 import { useState } from 'react';
-import packIndex from "@/data/sets/index.json";
+import { getPackDifficultyLevel, packCatalog } from "@/lib/packs";
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -45,6 +45,22 @@ function truncate(text: string, maxLength: number) {
   return `${text.slice(0, maxLength - 1).trimEnd()}…`;
 }
 
+function renderDifficultyFires(level: number) {
+  return (
+    <div className="flex items-center gap-0.5" aria-hidden="true">
+      {Array.from({ length: 4 }, (_, index) => (
+        <span
+          key={index}
+          className={`material-symbols-outlined text-sm ${index < level ? 'text-orange-500' : 'text-slate-300/60'}`}
+          style={{ fontVariationSettings: "'FILL' 1" }}
+        >
+          local_fire_department
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { stats } = useUserStats();
   const [packFilter, setPackFilter] = useState("All");
@@ -52,11 +68,17 @@ export default function Dashboard() {
   const [shuffleEnabled, setShuffleEnabled] = useState(true);
   const [selectedMiss, setSelectedMiss] = useState<RecentMiss | null>(null);
   
-  const powerRate = stats?.tossupsSeen ? ((stats.powersBuzzed / stats.tossupsSeen) * 100).toFixed(1) : "0.0";
-  const avgPoints = stats?.tossupsSeen ? (stats.totalPoints / stats.tossupsSeen).toFixed(2) : "0.00";
+  const questionsFaced = stats?.tossupsSeen || 0;
+  const rightAnswers = (stats?.powersBuzzed || 0) + (stats?.tensBuzzed || 0);
+  const wrongAnswers = stats?.wrongAnswers || 0;
+  const unansweredQuestions = stats?.unanswered || 0;
+  const powerRate = questionsFaced ? ((stats!.powersBuzzed / questionsFaced) * 100).toFixed(1) : "0.0";
+  const avgPoints = questionsFaced ? ((stats!.totalPoints) / questionsFaced).toFixed(2) : "0.00";
   const totalPoints = stats?.totalPoints || 0;
-  const totalCorrect = (stats?.powersBuzzed || 0) + (stats?.tensBuzzed || 0);
-  const overallAccuracy = stats?.tossupsSeen ? Math.round((totalCorrect / stats.tossupsSeen) * 100) : 0;
+  const overallAccuracy = questionsFaced ? Math.round((rightAnswers / questionsFaced) * 100) : 0;
+  const lightningAverageReaction = stats?.lightningSuccessfulBuzzes
+    ? Math.round(stats.lightningTotalReactionMs / stats.lightningSuccessfulBuzzes)
+    : null;
   const strongestCategories = stats
     ? Object.entries(stats.categories)
         .filter(([, data]) => data.seen > 0 && data.correct > 0)
@@ -69,8 +91,8 @@ export default function Dashboard() {
         .map(([category]) => category)
     : [];
   const dayPart = getDayPartLabel();
-  const heroMessage = stats?.tossupsSeen
-    ? `Your ${dayPart} accuracy is ${overallAccuracy}% across ${stats.tossupsSeen} tossups${strongestCategories.length ? `, led by ${formatCategoryList(strongestCategories)}` : ''}. Select a module to begin.`
+  const heroMessage = questionsFaced
+    ? `Your ${dayPart} accuracy is ${overallAccuracy}% across ${questionsFaced} questions faced${strongestCategories.length ? `, led by ${formatCategoryList(strongestCategories)}` : ''}. Select a module to begin.`
     : `Your ${dayPart} session stats will appear here as you practice. Select a module to begin.`;
   const recentMisses = stats?.recentMisses || [];
   const recentMissSubjects = Object.entries(
@@ -214,7 +236,7 @@ export default function Dashboard() {
                     <span className="material-symbols-outlined text-sm">shuffle</span>
                     Shuffle
                   </button>
-                  <span className="text-xs font-bold uppercase tracking-widest text-secondary">{packIndex.length} Packs</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-secondary">{packCatalog.length} Packs</span>
                 </div>
               </div>
               <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
@@ -230,8 +252,9 @@ export default function Dashboard() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {packIndex.filter(p => packFilter === 'All' || p.focus === packFilter).map(pack => {
+                {packCatalog.filter(p => packFilter === 'All' || p.focus === packFilter).map(pack => {
                   const progress = stats?.packProgress?.[pack.id] || 0;
+                  const difficultyLevel = getPackDifficultyLevel(pack);
                   return (
                   <div key={pack.id} className="group flex flex-col items-start p-6 bg-surface-container-lowest rounded-lg text-left transition-all duration-150 border border-outline-variant/10 hover:border-outline-variant/30 hover:shadow-xl hover:shadow-primary-container/5 relative">
                     {progress > 0 && (
@@ -245,7 +268,15 @@ export default function Dashboard() {
                       </span>
                     </div>
                     <span className="font-headline text-xl text-primary mb-1">{pack.title}</span>
-                    <span className="font-body text-xs text-on-surface-variant mb-6">{pack.questionCount} Tossups • {pack.difficulty}</span>
+                    <div className="mb-6 flex flex-wrap items-center gap-2 text-xs text-on-surface-variant">
+                      <span className="font-body">{pack.questionCount} Tossups</span>
+                      <span aria-hidden="true">•</span>
+                      <span className="font-body">{pack.audience || 'General'}</span>
+                      <span aria-hidden="true">•</span>
+                      <div title={`${pack.difficulty} difficulty`} aria-label={`${pack.difficulty} difficulty`}>
+                        {renderDifficultyFires(difficultyLevel)}
+                      </div>
+                    </div>
                     
                     {progress > 0 ? (
                        <div className="mt-auto pt-4 w-full flex gap-3 border-t border-outline-variant/10">
@@ -263,7 +294,7 @@ export default function Dashboard() {
                     )}
                   </div>
                 );})}
-                {packIndex.filter(p => packFilter === 'All' || p.focus === packFilter).length === 0 && (
+                {packCatalog.filter(p => packFilter === 'All' || p.focus === packFilter).length === 0 && (
                     <div className="col-span-1 sm:col-span-2 text-center p-8 text-on-surface-variant italic">
                       End of archive for this category.
                     </div>
@@ -273,6 +304,10 @@ export default function Dashboard() {
                 <Link href={buildPracticeHref(undefined, 0)} className="bg-primary hover:bg-primary-container text-white px-8 py-4 rounded-lg font-body font-bold flex items-center gap-3 transition-all active:scale-95">
                   <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
                   START RAPID FIRE
+                </Link>
+                <Link href="/en-lightning" className="bg-secondary hover:bg-secondary/90 text-white px-8 py-4 rounded-lg font-body font-bold flex items-center gap-3 transition-all active:scale-95">
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>flash_on</span>
+                  START EN-LIGHTNING ROUND
                 </Link>
               </div>
             </section>
@@ -308,9 +343,76 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold uppercase tracking-widest text-primary-fixed-dim mb-2">Questions Answered</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary-fixed-dim mb-2">Questions Faced</span>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-2xl font-headline font-bold italic">
+                      <span
+                        className="text-white"
+                        title="Total questions faced across your practice sessions."
+                      >
+                        {questionsFaced}
+                      </span>
+                      <span className="text-primary-fixed-dim">/</span>
+                      <span
+                        className="text-emerald-300"
+                        title="Questions answered correctly for points."
+                      >
+                        {rightAnswers}
+                      </span>
+                      <span className="text-primary-fixed-dim">/</span>
+                      <span
+                        className="text-red-300"
+                        title="Questions answered incorrectly."
+                      >
+                        {wrongAnswers}
+                      </span>
+                      <span className="text-primary-fixed-dim">/</span>
+                      <span
+                        className="text-amber-300"
+                        title="Questions that timed out without a valid answer."
+                      >
+                        {unansweredQuestions}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-primary text-white rounded-xl p-8 relative overflow-hidden">
+              <div className="relative z-10">
+                <h3 className="font-headline text-xl mb-3 opacity-80 italic">en-lightning round</h3>
+                <p className="font-body text-primary-fixed-dim mb-8">
+                  Reaction training with a spoken BUZZ cue hidden inside random questions.
+                </p>
+                <div className="space-y-10">
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary-fixed-dim mb-2">Average Reaction</span>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-headline font-bold italic">{stats?.tossupsSeen || 0}</span>
+                      <span className="text-4xl font-headline font-bold italic">
+                        {lightningAverageReaction !== null ? `${lightningAverageReaction} ms` : "—"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary-fixed-dim mb-2">Best Reaction</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-headline font-bold italic">
+                        {stats?.lightningBestReactionMs !== null && stats?.lightningBestReactionMs !== undefined
+                          ? `${stats.lightningBestReactionMs} ms`
+                          : "—"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary-fixed-dim mb-2">Successful Buzzes</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-headline font-bold italic">{stats?.lightningSuccessfulBuzzes || 0}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary-fixed-dim mb-2">False Starts</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-headline font-bold italic">{stats?.lightningFalseStarts || 0}</span>
                     </div>
                   </div>
                 </div>
@@ -341,7 +443,7 @@ export default function Dashboard() {
                       >
                         <div className="mb-2 flex items-center justify-between gap-4">
                           <span className="text-xs font-bold uppercase tracking-widest text-error">
-                            {miss.result === 'neg' ? 'Neg' : 'Dead Tossup'}
+                            {miss.result === 'neg' ? 'Neg' : miss.result === 'unanswered' ? 'Unanswered' : 'Dead Tossup'}
                           </span>
                           <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                             {miss.category}

@@ -12,6 +12,7 @@ export interface SessionMetrics {
   questionsAnswered: number;
   correctAnswers: number;
   wrongAnswers: number;
+  unanswered: number;
   powers: number;
   tens: number;
   negs: number;
@@ -32,7 +33,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   const [status, setStatus] = useState<SessionStatus>('idle');
   const [charIndex, setCharIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [lastResult, setLastResult] = useState<'power' | 'ten' | 'neg' | 'none' | null>(null);
+  const [lastResult, setLastResult] = useState<'power' | 'ten' | 'neg' | 'none' | 'unanswered' | null>(null);
   const [promptMessage, setPromptMessage] = useState('');
   const [speechRate, setSpeechRate] = useState(1);
   const [speechVolume, setSpeechVolume] = useState(1);
@@ -40,6 +41,7 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     questionsAnswered: 0,
     correctAnswers: 0,
     wrongAnswers: 0,
+    unanswered: 0,
     powers: 0,
     tens: 0,
     negs: 0,
@@ -393,7 +395,8 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     setSpeechVolume(current => Math.max(MIN_SPEECH_VOLUME, Number((current - SPEECH_VOLUME_STEP).toFixed(1))));
   }, []);
 
-  const submitAnswer = useCallback((userAnswer: string) => {
+  const submitAnswer = useCallback((userAnswer: string, options?: { timedOut?: boolean }) => {
+    const timedOut = options?.timedOut ?? false;
     const result = checkAnswer(userAnswer, currentQuestion.answer);
     const wordsSpoken = countWordsRevealed(currentQuestion.question, charIndex);
     const effectivePowerWordIndex = getEffectivePowerWordIndex(currentQuestion.question, currentQuestion.power_index);
@@ -438,6 +441,22 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
       }));
       return 'correct' as const;
     } else {
+      if (timedOut) {
+        setStatus('finished');
+        updateCharIndex(currentQuestion.question.length);
+        setLastResult('unanswered');
+        promptedScoringRef.current = null;
+        recordQuestion('unanswered', 0, currentQuestion.category, isNewForGlobal, currentQuestionDetails);
+        setSessionMetrics(m => ({
+          ...m,
+          questionsAnswered: m.questionsAnswered + 1,
+          unanswered: m.unanswered + 1,
+          missedNoAnswer: m.missedNoAnswer + 1,
+          currentStreak: 0,
+        }));
+        return 'incorrect' as const;
+      }
+
       const isEarly = charIndex < currentQuestion.question.length - 15;
       if (isEarly && status !== 'finished' && status !== 'prompting') {
         setScore(s => s - 5);

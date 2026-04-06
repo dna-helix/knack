@@ -12,7 +12,7 @@ export interface RecentMiss {
   answer: string;
   category: string;
   subcategory?: string;
-  result: 'neg' | 'none';
+  result: 'neg' | 'none' | 'unanswered';
   recordedAt: string;
 }
 
@@ -21,7 +21,16 @@ export interface UserStats {
   powersBuzzed: number;
   tensBuzzed: number;
   negsBuzzed: number;
+  wrongAnswers: number;
+  unanswered: number;
   totalPoints: number;
+  lightningRoundsPlayed: number;
+  lightningSuccessfulBuzzes: number;
+  lightningMissedBuzzes: number;
+  lightningFalseStarts: number;
+  lightningTotalReactionMs: number;
+  lightningBestReactionMs: number | null;
+  lightningRecentReactionMs: number[];
   categories: Record<string, CategoryStat>;
   streak: number;
   practiceDates: string[];
@@ -34,7 +43,16 @@ const defaultStats: UserStats = {
   powersBuzzed: 0,
   tensBuzzed: 0,
   negsBuzzed: 0,
+  wrongAnswers: 0,
+  unanswered: 0,
   totalPoints: 0,
+  lightningRoundsPlayed: 0,
+  lightningSuccessfulBuzzes: 0,
+  lightningMissedBuzzes: 0,
+  lightningFalseStarts: 0,
+  lightningTotalReactionMs: 0,
+  lightningBestReactionMs: null,
+  lightningRecentReactionMs: [],
   categories: {},
   streak: 0,
   practiceDates: [],
@@ -63,7 +81,16 @@ function normalizeStats(input: Partial<UserStats> | null | undefined): UserStats
     powersBuzzed: input.powersBuzzed ?? 0,
     tensBuzzed: input.tensBuzzed ?? 0,
     negsBuzzed: input.negsBuzzed ?? 0,
+    wrongAnswers: input.wrongAnswers ?? 0,
+    unanswered: input.unanswered ?? 0,
     totalPoints: input.totalPoints ?? 0,
+    lightningRoundsPlayed: input.lightningRoundsPlayed ?? 0,
+    lightningSuccessfulBuzzes: input.lightningSuccessfulBuzzes ?? 0,
+    lightningMissedBuzzes: input.lightningMissedBuzzes ?? 0,
+    lightningFalseStarts: input.lightningFalseStarts ?? 0,
+    lightningTotalReactionMs: input.lightningTotalReactionMs ?? 0,
+    lightningBestReactionMs: input.lightningBestReactionMs ?? null,
+    lightningRecentReactionMs: input.lightningRecentReactionMs ?? [],
     categories: input.categories ?? {},
     streak: input.streak ?? 0,
     practiceDates: input.practiceDates ?? [],
@@ -101,6 +128,7 @@ function cloneStats(stats: UserStats): UserStats {
         { ...value },
       ]),
     ),
+    lightningRecentReactionMs: [...stats.lightningRecentReactionMs],
     practiceDates: [...stats.practiceDates],
     packProgress: { ...stats.packProgress },
     recentMisses: stats.recentMisses.map(miss => ({ ...miss })),
@@ -115,6 +143,7 @@ interface RecordQuestionDetails {
 }
 
 const MAX_RECENT_MISSES = 8;
+const MAX_LIGHTNING_REACTIONS = 12;
 
 function getLocalDateKey(date: Date = new Date()) {
   const year = date.getFullYear();
@@ -184,7 +213,7 @@ export function useUserStats() {
    * @param details - The question details used for recent miss tracking
    */
   const recordQuestion = (
-    result: 'power' | 'ten' | 'neg' | 'none',
+    result: 'power' | 'ten' | 'neg' | 'none' | 'unanswered',
     points: number,
     category: string,
     isNew: boolean = true,
@@ -215,10 +244,12 @@ export function useUserStats() {
         if (result === 'power') s.powersBuzzed += 1;
         if (result === 'ten') s.tensBuzzed += 1;
         if (result === 'neg') s.negsBuzzed += 1;
+        if (result === 'none' || result === 'neg') s.wrongAnswers += 1;
+        if (result === 'unanswered') s.unanswered += 1;
         s.practiceDates = Array.from(new Set([getLocalDateKey(), ...s.practiceDates])).sort((a, b) => b.localeCompare(a));
         s.streak = computePracticeStreak(s.practiceDates);
 
-        if ((result === 'neg' || result === 'none') && details) {
+        if ((result === 'neg' || result === 'none' || result === 'unanswered') && details) {
             const questionId = details.questionId || `${category}:${details.question}`;
             s.recentMisses = [
                 {
@@ -248,5 +279,40 @@ export function useUserStats() {
     });
   };
 
-  return { stats, recordQuestion, updatePackProgress };
+  const recordLightningRound = (
+    outcome: 'success' | 'missed' | 'false_start',
+    reactionMs?: number,
+  ) => {
+    setStats(currentStats => {
+      const s = cloneStats(normalizeStats(currentStats));
+      s.lightningRoundsPlayed += 1;
+
+      if (outcome === 'success' && typeof reactionMs === 'number') {
+        const roundedReactionMs = Math.max(0, Math.round(reactionMs));
+        s.lightningSuccessfulBuzzes += 1;
+        s.lightningTotalReactionMs += roundedReactionMs;
+        s.lightningBestReactionMs =
+          s.lightningBestReactionMs === null
+            ? roundedReactionMs
+            : Math.min(s.lightningBestReactionMs, roundedReactionMs);
+        s.lightningRecentReactionMs = [
+          roundedReactionMs,
+          ...s.lightningRecentReactionMs,
+        ].slice(0, MAX_LIGHTNING_REACTIONS);
+      }
+
+      if (outcome === 'missed') {
+        s.lightningMissedBuzzes += 1;
+      }
+
+      if (outcome === 'false_start') {
+        s.lightningFalseStarts += 1;
+      }
+
+      persistStats(s);
+      return s;
+    });
+  };
+
+  return { stats, recordQuestion, updatePackProgress, recordLightningRound };
 }

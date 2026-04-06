@@ -35,7 +35,8 @@ function normalize(text: string): string {
   return text
     .toLowerCase()
     .replace(/<[^>]+>/g, '')          // strip HTML tags
-    .replace(/['']/g, "'")            // normalize smart quotes
+    .replace(/[‘’]/g, "'")            // normalize smart apostrophes
+    .replace(/[“”]/g, '"')            // normalize smart quotes
     .replace(/[^a-z0-9\s']/g, '')     // strip punctuation except apostrophes
     .replace(/\s+/g, ' ')             // collapse whitespace
     .trim();
@@ -64,6 +65,7 @@ function extractAnswerVariants(text: string): string[] {
         .replace(/^[""\u201c\u201d']|[""\u201c\u201d']$/g, '')
         .replace(/\s+at\s+any\s+time.*/i, '')
         .replace(/\s+before\s+.*/i, '')
+        .replace(/\s+alone$/i, '')
         .replace(/,\s*.*$/i, '')
         .trim();
 
@@ -113,7 +115,7 @@ export function parseForbiddenAnswers(rawAnswer: string): string[] {
 
   for (const group of groups) {
     const matches = Array.from(
-      group.matchAll(/(?:do\s+not\s+accept(?:\s+or\s+prompt\s+on)?|do\s+not\s+prompt\s+on|anti-?\s*prompt\s+on)\s+([^\])]+)/gi),
+      group.matchAll(/(?:(?:do\s+not|don't|dont)\s+accept(?:\s+or\s+prompt\s+on)?|(?:do\s+not|don't|dont)\s+prompt\s+on|anti-?\s*prompt\s+on)\s+([^\])]+)/gi),
     );
 
     for (const match of matches) {
@@ -161,13 +163,9 @@ export function parseAcceptableAnswers(rawAnswer: string): string[] {
       .replace(/[\])]$/, '')
       .trim();
 
-    const parts = inner.split(';');
-    for (const part of parts) {
-      const cleaned = part.replace(/<[^>]+>/g, '').trim();
-      // Skip meta-instructions
-      if (/reasonable|equivalent|prompt|anti|do not/i.test(cleaned)) continue;
-      if (cleaned) {
-        answers.push(normalize(cleaned));
+    for (const answer of extractAnswerVariants(inner)) {
+      if (answer) {
+        answers.push(answer);
       }
     }
   }
@@ -181,8 +179,8 @@ function fuzzyMatch(userAnswer: string, target: string): boolean {
   // Exact match
   if (userAnswer === target) return true;
 
-  // Containment: user typed a key portion of the answer
-  if (target.includes(userAnswer) && userAnswer.length >= 3) return true;
+  // Allow extra qualifiers in the user's answer, but do not allow short partial
+  // substrings to match a longer target like "roman" -> "eastern roman empire".
   if (userAnswer.includes(target) && target.length >= 3) return true;
 
   // Levenshtein fuzzy match with scaled threshold

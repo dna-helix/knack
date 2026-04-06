@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Question } from "@/lib/types";
 import { useUserStats } from "@/lib/useUserStats";
 import { getEffectivePowerWordIndex, getQuestionWords } from "@/lib/powerIndex";
+import { getPackById, loadRemotePackQuestions } from "@/lib/packs";
 
 type BrowserSpeechRecognition = {
   continuous: boolean;
@@ -42,30 +43,49 @@ function QuizLoader() {
   const [questions, setQuestions] = useState<Question[] | null>(null);
 
   useEffect(() => {
-    import(`@/data/sets/${packId}.json`)
-      .then(module => {
-        const qs = [...module.default];
-        if (shouldShuffle) {
-          for (let i = qs.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [qs[i], qs[j]] = [qs[j], qs[i]];
-          }
+    let isActive = true;
+
+    const shuffleQuestions = (sourceQuestions: Question[]) => {
+      const qs = [...sourceQuestions];
+      if (shouldShuffle) {
+        for (let i = qs.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [qs[i], qs[j]] = [qs[j], qs[i]];
         }
-        setQuestions(qs);
-      })
-      .catch(e => {
-         console.error(e);
-         import(`@/data/sets/qbreader_set.json`).then(m => {
-          const qs = [...m.default];
-          if (shouldShuffle) {
-            for (let i = qs.length - 1; i > 0; i--) {
-              const j = Math.floor(Math.random() * (i + 1));
-              [qs[i], qs[j]] = [qs[j], qs[i]];
-            }
+      }
+      return qs;
+    };
+
+    const loadPack = async () => {
+      const pack = getPackById(packId);
+
+      try {
+        if (pack?.sourceType === 'qbreader') {
+          const remoteQuestions = await loadRemotePackQuestions(pack.qbreaderSetName || pack.title);
+          if (isActive) {
+            setQuestions(shuffleQuestions(remoteQuestions));
           }
-          setQuestions(qs);
-         });
-      });
+          return;
+        }
+
+        const packModule = await import(`@/data/sets/${pack?.file || `${packId}.json`}`);
+        if (isActive) {
+          setQuestions(shuffleQuestions(packModule.default));
+        }
+      } catch (error) {
+        console.error(error);
+        const fallbackModule = await import(`@/data/sets/qbreader_set.json`);
+        if (isActive) {
+          setQuestions(shuffleQuestions(fallbackModule.default));
+        }
+      }
+    };
+
+    loadPack();
+
+    return () => {
+      isActive = false;
+    };
   }, [packId, shouldShuffle]);
 
   if (!questions) {
@@ -81,7 +101,7 @@ interface QuestionDisplayProps {
   charIndex: number;
   status: SessionStatus;
   powerIndex: number;
-  lastResult: 'power' | 'ten' | 'neg' | 'none' | null;
+  lastResult: 'power' | 'ten' | 'neg' | 'none' | 'unanswered' | null;
 }
 
 function QuestionDisplay({ question, charIndex, status, powerIndex, lastResult }: QuestionDisplayProps) {
@@ -196,18 +216,18 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
     const answer = rawAnswer.trim();
     if (!answer) {
       if (timedOut) {
-        setFeedback({ type: 'incorrect', message: "Time's up! No answer submitted." });
-        submitAnswerRef.current('');
+        setFeedback({ type: 'incorrect', message: "Time's up! Marked as unanswered." });
+        submitAnswerRef.current('', { timedOut: true });
       }
       setAnswerDraft('');
       return;
     }
 
-    const result = submitAnswerRef.current(answer);
+    const result = submitAnswerRef.current(answer, timedOut ? { timedOut: true } : undefined);
     if (result === 'incorrect') {
       setFeedback({
         type: 'incorrect',
-        message: timedOut ? `Time's up! "${answer}" is incorrect.` : `"${answer}" is incorrect.`,
+        message: timedOut ? `Time's up on "${answer}". Marked as unanswered.` : `"${answer}" is incorrect.`,
       });
     } else if (result === 'prompt') {
       setFeedback({ type: 'prompt', message: promptMessageRef.current });
@@ -408,6 +428,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
   };
 
   const getScoringMessage = () => {
+    if (lastResult === 'unanswered') return 'This question timed out and was recorded as unanswered.';
     if (feedback?.type === 'incorrect') return feedback.message;
     if (lastResult === 'power') return 'POWER! ⚡ You buzzed in early and nailed it! +15 points.';
     if (lastResult === 'ten') return 'Excellent timing! You buzzed successfully. +10 points.';
@@ -416,6 +437,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
   };
 
   const getScoringTitle = () => {
+    if (lastResult === 'unanswered') return 'Unanswered';
     if (feedback?.type === 'incorrect') return 'Incorrect';
     if (lastResult === 'power') return 'POWER!';
     if (lastResult === 'ten') return 'Correct';
@@ -644,7 +666,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
           </div>
         </section>
 
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-7 gap-3">
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Points</span>
             <span className="font-headline text-2xl font-bold text-on-tertiary-container">{score > 0 ? `+${score}` : score}</span>
@@ -656,6 +678,10 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Wrong</span>
             <span className="font-headline text-2xl font-bold text-error">{sessionMetrics.wrongAnswers}</span>
+          </div>
+          <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
+            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Unanswered</span>
+            <span className="font-headline text-2xl font-bold text-amber-500">{sessionMetrics.unanswered}</span>
           </div>
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Powers</span>
