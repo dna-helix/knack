@@ -20,6 +20,13 @@ export interface SessionMetrics {
   bestStreak: number;
 }
 
+const MIN_SPEECH_RATE = 0.7;
+const MAX_SPEECH_RATE = 1.3;
+const SPEECH_RATE_STEP = 0.1;
+const MIN_SPEECH_VOLUME = 0.2;
+const MAX_SPEECH_VOLUME = 1;
+const SPEECH_VOLUME_STEP = 0.1;
+
 export function useQuizSession(questions: Question[], initialIndex: number = 0, onIndexChange?: (idx: number) => void) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(initialIndex);
   const [status, setStatus] = useState<SessionStatus>('idle');
@@ -27,6 +34,8 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   const [score, setScore] = useState(0);
   const [lastResult, setLastResult] = useState<'power' | 'ten' | 'neg' | 'none' | null>(null);
   const [promptMessage, setPromptMessage] = useState('');
+  const [speechRate, setSpeechRate] = useState(1);
+  const [speechVolume, setSpeechVolume] = useState(1);
   const [sessionMetrics, setSessionMetrics] = useState<SessionMetrics>({
     questionsAnswered: 0,
     correctAnswers: 0,
@@ -51,6 +60,8 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   const statusRef = useRef<SessionStatus>('idle');
   const isEstimatedReadingRef = useRef(false);
   const promptedScoringRef = useRef<{ result: 'power' | 'ten'; points: 10 | 15 } | null>(null);
+  const speechRateRef = useRef(1);
+  const speechVolumeRef = useRef(1);
   const progressRef = useRef<{
     chunkIndex: number;
     baseCharIndex: number;
@@ -79,6 +90,14 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
   useEffect(() => {
     isEstimatedReadingRef.current = isEstimatedReading;
   }, [isEstimatedReading]);
+
+  useEffect(() => {
+    speechRateRef.current = speechRate;
+  }, [speechRate]);
+
+  useEffect(() => {
+    speechVolumeRef.current = speechVolume;
+  }, [speechVolume]);
 
   // ── Chunking Logic for Mobile Reliability ──
   const questionChunks = useMemo(() => {
@@ -211,6 +230,8 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
       }
 
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.rate = speechRateRef.current;
+      utterance.volume = speechVolumeRef.current;
       utteranceRef.current = utterance;
       const baseCharIndex = Math.max(startIndex, chunk.start);
       const estimatedDurationMs = estimateUtteranceDurationMs(textToSpeak, utterance.rate);
@@ -356,6 +377,22 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     setPromptMessage('');
   }, [stopActiveSpeech]);
 
+  const increaseSpeechRate = useCallback(() => {
+    setSpeechRate(current => Math.min(MAX_SPEECH_RATE, Number((current + SPEECH_RATE_STEP).toFixed(1))));
+  }, []);
+
+  const decreaseSpeechRate = useCallback(() => {
+    setSpeechRate(current => Math.max(MIN_SPEECH_RATE, Number((current - SPEECH_RATE_STEP).toFixed(1))));
+  }, []);
+
+  const increaseSpeechVolume = useCallback(() => {
+    setSpeechVolume(current => Math.min(MAX_SPEECH_VOLUME, Number((current + SPEECH_VOLUME_STEP).toFixed(1))));
+  }, []);
+
+  const decreaseSpeechVolume = useCallback(() => {
+    setSpeechVolume(current => Math.max(MIN_SPEECH_VOLUME, Number((current - SPEECH_VOLUME_STEP).toFixed(1))));
+  }, []);
+
   const submitAnswer = useCallback((userAnswer: string) => {
     const result = checkAnswer(userAnswer, currentQuestion.answer);
     const wordsSpoken = countWordsRevealed(currentQuestion.question, charIndex);
@@ -456,6 +493,8 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     score,
     lastResult,
     promptMessage,
+    speechRate,
+    speechVolume,
     sessionMetrics,
     currentQuestionIndex,
     totalQuestions: questions.length,
@@ -464,6 +503,10 @@ export function useQuizSession(questions: Question[], initialIndex: number = 0, 
     buzz,
     endQuestion,
     retryQuestion,
+    increaseSpeechRate,
+    decreaseSpeechRate,
+    increaseSpeechVolume,
+    decreaseSpeechVolume,
     submitAnswer,
     nextQuestion,
     stopActiveSpeech,

@@ -54,6 +54,27 @@ interface PromptEntry {
   promptMessage: string;
 }
 
+function extractAnswerVariants(text: string): string[] {
+  const variants: string[] = [];
+
+  for (const semicolonPart of text.split(';')) {
+    for (const orPart of semicolonPart.split(/\s+or\s+/i)) {
+      const cleaned = orPart
+        .replace(/<[^>]+>/g, '')
+        .replace(/^[""\u201c\u201d']|[""\u201c\u201d']$/g, '')
+        .replace(/\s+at\s+any\s+time.*/i, '')
+        .replace(/\s+before\s+.*/i, '')
+        .replace(/,\s*.*$/i, '')
+        .trim();
+
+      if (/reasonable|equivalent|do not|anti|descriptive|partial|similar/i.test(cleaned)) continue;
+      if (cleaned) variants.push(normalize(cleaned));
+    }
+  }
+
+  return variants;
+}
+
 export function parsePromptAnswers(rawAnswer: string): PromptEntry[] {
   const prompts: PromptEntry[] = [];
 
@@ -77,21 +98,32 @@ export function parsePromptAnswers(rawAnswer: string): PromptEntry[] {
       .trim();
 
     // Split on semicolons first
-    const semiParts = inner.split(';');
-    for (const semiPart of semiParts) {
-      // Then split on " or " to handle "ellipse or oval" → ["ellipse", "oval"]
-      const orParts = semiPart.split(/\s+or\s+/i);
-      for (const part of orParts) {
-        const cleaned = part.replace(/<[^>]+>/g, '').trim();
-        // Skip meta-instructions
-        if (/reasonable|equivalent|do not|anti|descriptive|partial/i.test(cleaned)) continue;
-        if (cleaned) {
-          prompts.push({ answer: normalize(cleaned), promptMessage });
-        }
+    for (const answer of extractAnswerVariants(inner)) {
+      if (answer) {
+        prompts.push({ answer, promptMessage });
       }
     }
   }
   return prompts;
+}
+
+export function parseForbiddenAnswers(rawAnswer: string): string[] {
+  const forbidden: string[] = [];
+  const groups = rawAnswer.match(/[\[(][^\])]*[\])]/g) || [];
+
+  for (const group of groups) {
+    const matches = Array.from(
+      group.matchAll(/(?:do\s+not\s+accept(?:\s+or\s+prompt\s+on)?|do\s+not\s+prompt\s+on|anti-?\s*prompt\s+on)\s+([^\])]+)/gi),
+    );
+
+    for (const match of matches) {
+      for (const answer of extractAnswerVariants(match[1])) {
+        forbidden.push(answer);
+      }
+    }
+  }
+
+  return Array.from(new Set(forbidden.filter(Boolean)));
 }
 
 // ── Parse the raw answer string into acceptable answers ───────────────
@@ -166,6 +198,20 @@ function fuzzyMatch(userAnswer: string, target: string): boolean {
   return false;
 }
 
+function strictMatch(userAnswer: string, target: string): boolean {
+  if (userAnswer === target) return true;
+
+  const maxLen = Math.max(userAnswer.length, target.length);
+  const threshold = maxLen <= 5 ? 1 : maxLen <= 10 ? 2 : 3;
+  const dist = levenshtein(userAnswer, target);
+  if (dist <= threshold) return true;
+
+  if (userAnswer.endsWith('s') && levenshtein(userAnswer.slice(0, -1), target) <= threshold) return true;
+  if (target.endsWith('s') && levenshtein(userAnswer, target.slice(0, -1)) <= threshold) return true;
+
+  return false;
+}
+
 // ── Public API ────────────────────────────────────────────────────────
 export interface AnswerResult {
   isCorrect: boolean;
@@ -178,6 +224,13 @@ export function checkAnswer(userAnswer: string, rawAnswer: string): AnswerResult
   const normalizedUser = normalize(userAnswer);
   if (!normalizedUser) {
     return { isCorrect: false, needsPrompt: false, promptMessage: '', matchedAnswer: '' };
+  }
+
+  const forbiddenAnswers = parseForbiddenAnswers(rawAnswer);
+  for (const forbidden of forbiddenAnswers) {
+    if (strictMatch(normalizedUser, forbidden)) {
+      return { isCorrect: false, needsPrompt: false, promptMessage: '', matchedAnswer: forbidden };
+    }
   }
 
   // 1. Check against acceptable (correct) answers first

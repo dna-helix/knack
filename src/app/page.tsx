@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useUserStats } from "@/lib/useUserStats";
+import { RecentMiss, useUserStats } from "@/lib/useUserStats";
 import { useState } from 'react';
 import packIndex from "@/data/sets/index.json";
 import {
@@ -49,7 +49,8 @@ export default function Dashboard() {
   const { stats } = useUserStats();
   const [packFilter, setPackFilter] = useState("All");
   const [chartMode, setChartMode] = useState<'bars' | 'radar'>('bars');
-  const [shuffleEnabled, setShuffleEnabled] = useState(false);
+  const [shuffleEnabled, setShuffleEnabled] = useState(true);
+  const [selectedMiss, setSelectedMiss] = useState<RecentMiss | null>(null);
   
   const powerRate = stats?.tossupsSeen ? ((stats.powersBuzzed / stats.tossupsSeen) * 100).toFixed(1) : "0.0";
   const avgPoints = stats?.tossupsSeen ? (stats.totalPoints / stats.tossupsSeen).toFixed(2) : "0.00";
@@ -81,6 +82,13 @@ export default function Dashboard() {
   
   const allCategories = stats ? Object.entries(stats.categories).sort((a,b) => b[1].seen - a[1].seen) : [];
   const categories = chartMode === 'radar' ? allCategories : allCategories.slice(0, 6);
+  const buildPracticeHref = (packId?: string, start?: number) => {
+    const params = new URLSearchParams();
+    if (packId) params.set('pack', packId);
+    if (typeof start === 'number') params.set('start', String(start));
+    params.set('shuffle', shuffleEnabled ? '1' : '0');
+    return `/practice?${params.toString()}`;
+  };
 
   return (
     <>
@@ -241,15 +249,15 @@ export default function Dashboard() {
                     
                     {progress > 0 ? (
                        <div className="mt-auto pt-4 w-full flex gap-3 border-t border-outline-variant/10">
-                         <Link href={`/practice?pack=${pack.id}&start=${progress}${shuffleEnabled ? '&shuffle=1' : ''}`} className="flex-1 bg-primary text-white py-2 px-4 rounded font-bold text-xs text-center hover:bg-primary/90 transition-colors active:scale-95">
+                         <Link href={buildPracticeHref(pack.id, progress)} className="flex-1 bg-primary text-white py-2 px-4 rounded font-bold text-xs text-center hover:bg-primary/90 transition-colors active:scale-95">
                             Resume
                          </Link>
-                         <Link href={`/practice?pack=${pack.id}&start=0${shuffleEnabled ? '&shuffle=1' : ''}`} className="flex-1 bg-surface-container hover:bg-surface-container-highest text-primary py-2 px-4 rounded font-bold text-xs text-center transition-colors active:scale-95">
+                         <Link href={buildPracticeHref(pack.id, 0)} className="flex-1 bg-surface-container hover:bg-surface-container-highest text-primary py-2 px-4 rounded font-bold text-xs text-center transition-colors active:scale-95">
                             Restart
                          </Link>
                        </div>
                     ) : (
-                       <Link href={`/practice?pack=${pack.id}&start=0${shuffleEnabled ? '&shuffle=1' : ''}`} className="mt-auto w-full pt-4 border-t border-outline-variant/10 font-bold text-xs text-primary group-hover:text-tertiary transition-colors flex items-center justify-between">
+                       <Link href={buildPracticeHref(pack.id, 0)} className="mt-auto w-full pt-4 border-t border-outline-variant/10 font-bold text-xs text-primary group-hover:text-tertiary transition-colors flex items-center justify-between">
                           Start Practice <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
                        </Link>
                     )}
@@ -262,7 +270,7 @@ export default function Dashboard() {
                 )}
               </div>
               <div className="mt-8 pt-8 border-t border-outline-variant/20 flex flex-wrap gap-4">
-                <Link href="/practice" className="bg-primary hover:bg-primary-container text-white px-8 py-4 rounded-lg font-body font-bold flex items-center gap-3 transition-all active:scale-95">
+                <Link href={buildPracticeHref(undefined, 0)} className="bg-primary hover:bg-primary-container text-white px-8 py-4 rounded-lg font-body font-bold flex items-center gap-3 transition-all active:scale-95">
                   <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
                   START RAPID FIRE
                 </Link>
@@ -325,7 +333,12 @@ export default function Dashboard() {
                   </div>
                   <div className="space-y-4">
                     {recentMisses.slice(0, 5).map(miss => (
-                      <div key={`${miss.questionId}:${miss.recordedAt}`} className="rounded-lg border border-outline-variant/10 bg-surface-container-lowest p-4">
+                      <button
+                        key={`${miss.questionId}:${miss.recordedAt}`}
+                        onClick={() => setSelectedMiss(miss)}
+                        className="w-full rounded-lg border border-outline-variant/10 bg-surface-container-lowest p-4 text-left transition-colors hover:bg-surface-container hover:border-outline-variant/30"
+                        type="button"
+                      >
                         <div className="mb-2 flex items-center justify-between gap-4">
                           <span className="text-xs font-bold uppercase tracking-widest text-error">
                             {miss.result === 'neg' ? 'Neg' : 'Dead Tossup'}
@@ -340,7 +353,7 @@ export default function Dashboard() {
                         <p className="mt-2 font-body text-xs uppercase tracking-wide text-slate-500">
                           Answer: {truncate(toPlainText(miss.answer), 80)}
                         </p>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -353,6 +366,37 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+      {selectedMiss && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-3xl rounded-2xl bg-surface shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between bg-primary px-6 py-4 text-white">
+              <div>
+                <h3 className="font-headline text-xl">Recent Miss</h3>
+                <p className="text-xs uppercase tracking-widest text-primary-fixed-dim">{selectedMiss.category}</p>
+              </div>
+              <button
+                onClick={() => setSelectedMiss(null)}
+                className="h-10 w-10 rounded-full border border-white/20 text-2xl leading-none transition-colors hover:bg-white/10"
+                type="button"
+              >
+                x
+              </button>
+            </div>
+            <div className="space-y-6 p-6 md:p-8">
+              <div>
+                <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Full Question</span>
+                <p className="font-headline text-xl leading-relaxed text-primary-container italic whitespace-pre-wrap">
+                  {selectedMiss.question}
+                </p>
+              </div>
+              <div>
+                <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Answer</span>
+                <div className="font-headline text-2xl font-bold italic text-primary" dangerouslySetInnerHTML={{ __html: selectedMiss.answer }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
