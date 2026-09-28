@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useUserStats } from "@/lib/useUserStats";
+import { useAuth } from "@/lib/useAuth";
 import { useState } from 'react';
 import packIndex from "@/data/sets/index.json";
 import {
@@ -24,9 +25,11 @@ ChartJS.register(
 
 export default function Dashboard() {
   const { stats } = useUserStats();
+  const { profile, signOut } = useAuth();
   const [packFilter, setPackFilter] = useState("All");
   const [chartMode, setChartMode] = useState<'bars' | 'radar'>('bars');
   const [shuffleEnabled, setShuffleEnabled] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   
   const powerRate = stats?.tossupsSeen ? ((stats.powersBuzzed / stats.tossupsSeen) * 100).toFixed(1) : "0.0";
   const avgPoints = stats?.tossupsSeen ? (stats.totalPoints / stats.tossupsSeen).toFixed(2) : "0.00";
@@ -34,6 +37,9 @@ export default function Dashboard() {
   
   const allCategories = stats ? Object.entries(stats.categories).sort((a,b) => b[1].seen - a[1].seen) : [];
   const categories = chartMode === 'radar' ? allCategories : allCategories.slice(0, 6);
+
+  const displayName = profile?.display_name || 'Scholar';
+  const isCoach = profile?.role === 'coach' || profile?.role === 'admin';
 
   return (
     <>
@@ -47,17 +53,47 @@ export default function Dashboard() {
             <nav className="hidden md:flex gap-8 items-center">
               <Link href="/" className="font-headline italic font-bold text-blue-900 transition-colors">Home</Link>
               <Link href="/practice" className="font-headline italic font-bold text-slate-500 hover:bg-slate-200/50 transition-colors px-2 py-1">Practice</Link>
-              <Link href="#" className="font-headline italic font-bold text-slate-500 hover:bg-slate-200/50 transition-colors px-2 py-1">History</Link>
+              <Link href="/leaderboard" className="font-headline italic font-bold text-slate-500 hover:bg-slate-200/50 transition-colors px-2 py-1">Leaderboard</Link>
+              <Link href="/competitions" className="font-headline italic font-bold text-slate-500 hover:bg-slate-200/50 transition-colors px-2 py-1">Competitions</Link>
+              {isCoach && (
+                <Link href="/coach" className="font-headline italic font-bold text-secondary hover:bg-secondary/10 transition-colors px-2 py-1">Coach Panel</Link>
+              )}
             </nav>
-            <span className="material-symbols-outlined text-blue-950 dark:text-blue-100">account_circle</span>
+            <div className="relative">
+              <button onClick={() => setShowUserMenu(m => !m)} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <span className="hidden md:inline font-body text-sm text-on-surface-variant">{displayName}</span>
+                <span className="material-symbols-outlined text-blue-950 dark:text-blue-100">account_circle</span>
+              </button>
+              {showUserMenu && (
+                <div className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-xl border border-outline-variant/20 py-2 min-w-[180px] z-50">
+                  <div className="px-4 py-2 border-b border-outline-variant/10">
+                    <p className="font-headline font-bold text-sm text-primary">{displayName}</p>
+                    <p className="font-body text-xs text-on-surface-variant">{profile?.email}</p>
+                  </div>
+                  {isCoach && (
+                    <Link href="/coach" className="block px-4 py-2 text-sm font-body text-on-surface-variant hover:bg-surface-container transition-colors md:hidden">
+                      Coach Panel
+                    </Link>
+                  )}
+                  <button onClick={signOut} className="w-full text-left px-4 py-2 text-sm font-body text-error hover:bg-error-container/30 transition-colors">
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-10 pb-32">
         <div className="mb-12">
-          <h2 className="font-headline text-5xl text-primary mb-2 leading-tight">Welcome back, Scholar.</h2>
-          <p className="font-body text-on-surface-variant max-w-2xl">Your morning session performance is currently in the 92nd percentile for Literature and Fine Arts. Select a module to begin.</p>
+          <h2 className="font-headline text-5xl text-primary mb-2 leading-tight">Welcome back, {displayName}.</h2>
+          <p className="font-body text-on-surface-variant max-w-2xl">
+            {stats?.tossupsSeen
+              ? `You've answered ${stats.tossupsSeen} tossups with a ${powerRate}% power rate. Select a module to continue.`
+              : 'Select a module to begin your practice session.'
+            }
+          </p>
         </div>
 
         {/* Knowledge Map */}
