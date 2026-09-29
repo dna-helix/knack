@@ -1,10 +1,31 @@
 "use client";
 
 import { useQuizSession, SessionStatus } from "@/lib/useQuizSession";
-import { useState, useEffect, useRef, Suspense, useMemo } from "react";
+import { useState, useEffect, useRef, Suspense, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Question } from "@/lib/types";
 import { useUserStats } from "@/lib/useUserStats";
+import { getEffectivePowerWordIndex, getQuestionWords } from "@/lib/powerIndex";
+import { getPackById, loadRemotePackQuestions } from "@/lib/packs";
+
+type BrowserSpeechRecognition = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onstart: (() => void) | null;
+  onresult: ((event: {
+    resultIndex: number;
+    results: ArrayLike<{
+      isFinal: boolean;
+      0: { transcript: string };
+      length: number;
+    }>;
+  }) => void) | null;
+  onerror: ((event: { error?: string }) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
 
 export default function QuizPage() {
   return (
@@ -18,25 +39,53 @@ function QuizLoader() {
   const searchParams = useSearchParams();
   const packId = searchParams.get('pack') || 'qbreader_set';
   const startParam = parseInt(searchParams.get('start') || '0', 10);
-  const shouldShuffle = searchParams.get('shuffle') === '1';
+  const shouldShuffle = searchParams.get('shuffle') !== '0';
   const [questions, setQuestions] = useState<Question[] | null>(null);
 
   useEffect(() => {
-    import(`@/data/sets/${packId}.json`)
-      .then(module => {
-        const qs = [...module.default];
-        if (shouldShuffle) {
-          for (let i = qs.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [qs[i], qs[j]] = [qs[j], qs[i]];
-          }
+    let isActive = true;
+
+    const shuffleQuestions = (sourceQuestions: Question[]) => {
+      const qs = [...sourceQuestions];
+      if (shouldShuffle) {
+        for (let i = qs.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [qs[i], qs[j]] = [qs[j], qs[i]];
         }
-        setQuestions(qs);
-      })
-      .catch(e => {
-         console.error(e);
-         import(`@/data/sets/qbreader_set.json`).then(m => setQuestions(m.default));
-      });
+      }
+      return qs;
+    };
+
+    const loadPack = async () => {
+      const pack = getPackById(packId);
+
+      try {
+        if (pack?.sourceType === 'qbreader') {
+          const remoteQuestions = await loadRemotePackQuestions(pack.qbreaderSetName || pack.title);
+          if (isActive) {
+            setQuestions(shuffleQuestions(remoteQuestions));
+          }
+          return;
+        }
+
+        const packModule = await import(`@/data/sets/${pack?.file || `${packId}.json`}`);
+        if (isActive) {
+          setQuestions(shuffleQuestions(packModule.default));
+        }
+      } catch (error) {
+        console.error(error);
+        const fallbackModule = await import(`@/data/sets/qbreader_set.json`);
+        if (isActive) {
+          setQuestions(shuffleQuestions(fallbackModule.default));
+        }
+      }
+    };
+
+    loadPack();
+
+    return () => {
+      isActive = false;
+    };
   }, [packId, shouldShuffle]);
 
   if (!questions) {
@@ -52,42 +101,35 @@ interface QuestionDisplayProps {
   charIndex: number;
   status: SessionStatus;
   powerIndex: number;
+  lastResult: 'power' | 'ten' | 'neg' | 'none' | 'unanswered' | null;
 }
 
-function QuestionDisplay({ question, charIndex, status, powerIndex }: QuestionDisplayProps) {
+function QuestionDisplay({ question, charIndex, status, powerIndex, lastResult }: QuestionDisplayProps) {
   const words = useMemo(() => {
-    const results = [];
-    const wordRegex = /\S+/g;
-    let match;
-    let index = 0;
-    while ((match = wordRegex.exec(question)) !== null) {
-      results.push({
-        text: match[0],
-        start: match.index,
-        end: match.index + match[0].length,
-        isPower: index < powerIndex,
-      });
-      index++;
-    }
-    return results;
+    const effectivePowerWordIndex = getEffectivePowerWordIndex(question, powerIndex);
+
+    return getQuestionWords(question).map((word, index) => ({
+      ...word,
+      isPower: effectivePowerWordIndex > 0 && index < effectivePowerWordIndex,
+    }));
   }, [question, powerIndex]);
 
   return (
     <p className="font-headline text-xl md:text-4xl leading-relaxed text-primary-container italic opacity-90 mb-8 whitespace-pre-wrap">
-      &quot;
       {words.map((word, i) => {
-        const isVisible = status === 'finished' || charIndex >= word.end;
-        
-        // In 'finished' state, we show power words in bold/underline
-        const showBold = word.isPower && status === 'finished';
+        const isVisible = status === 'finished' || charIndex > word.start;
+        const showPowerUnderline = word.isPower && status === 'finished';
+        const showPowerBuzzStyle = showPowerUnderline && lastResult === 'power';
         
         return (
           <span 
             key={i} 
             className={`transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
           >
-            {showBold ? (
-              <strong className="font-extrabold underline decoration-primary/30 underline-offset-4">{word.text}</strong>
+            {showPowerUnderline ? (
+              <strong className={showPowerBuzzStyle ? "font-extrabold border-b-4 border-secondary pb-0.5" : "font-semibold border-b-2 border-primary/50 pb-0.5"}>
+                {word.text}
+              </strong>
             ) : (
               word.text
             )}
@@ -95,7 +137,6 @@ function QuestionDisplay({ question, charIndex, status, powerIndex }: QuestionDi
           </span>
         );
       })}
-      &quot;
     </p>
   );
 }
@@ -110,12 +151,20 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
     score,
     lastResult,
     promptMessage,
+    speechRate,
+    speechVolume,
     sessionMetrics,
     currentQuestionIndex,
     totalQuestions,
     startReading,
     pauseReading,
     buzz,
+    endQuestion,
+    retryQuestion,
+    increaseSpeechRate,
+    decreaseSpeechRate,
+    increaseSpeechVolume,
+    decreaseSpeechVolume,
     submitAnswer,
     nextQuestion,
     stopActiveSpeech,
@@ -130,48 +179,112 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
   answerInputRef.current = answerInput;
   const submitAnswerRef = useRef(submitAnswer);
   submitAnswerRef.current = submitAnswer;
+  const statusRef = useRef(status);
+  statusRef.current = status;
+  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
+  const shouldKeepListeningRef = useRef(false);
+  const promptMessageRef = useRef(promptMessage);
+  promptMessageRef.current = promptMessage;
 
   // ── 10-second answer timer ──
   const ANSWER_TIME_LIMIT = 10;
   const [timeLeft, setTimeLeft] = useState(ANSWER_TIME_LIMIT);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const answerDeadlineRef = useRef<number | null>(null);
+
+  const setAnswerDraft = useCallback((value: string) => {
+    answerInputRef.current = value;
+    setAnswerInput(value);
+  }, []);
+
+  const stopListening = useCallback(() => {
+    shouldKeepListeningRef.current = false;
+    if (recognitionRef.current) {
+      recognitionRef.current.onend = null;
+      recognitionRef.current.onerror = null;
+      recognitionRef.current.onresult = null;
+      recognitionRef.current.onstart = null;
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+  }, []);
+
+  const submitCurrentAnswer = useCallback((rawAnswer: string, timedOut: boolean = false) => {
+    stopListening();
+
+    const answer = rawAnswer.trim();
+    if (!answer) {
+      if (timedOut) {
+        setFeedback({ type: 'incorrect', message: "Time's up! Marked as unanswered." });
+        submitAnswerRef.current('', { timedOut: true });
+      }
+      setAnswerDraft('');
+      return;
+    }
+
+    const result = submitAnswerRef.current(answer, timedOut ? { timedOut: true } : undefined);
+    if (result === 'incorrect') {
+      setFeedback({
+        type: 'incorrect',
+        message: timedOut ? `Time's up on "${answer}". Marked as unanswered.` : `"${answer}" is incorrect.`,
+      });
+    } else if (result === 'prompt') {
+      setFeedback({ type: 'prompt', message: promptMessageRef.current });
+    } else {
+      setFeedback(null);
+    }
+    setAnswerDraft('');
+  }, [setAnswerDraft, stopListening]);
 
   useEffect(() => {
     if (status === 'answering' || status === 'prompting') {
+      answerDeadlineRef.current = Date.now() + (ANSWER_TIME_LIMIT * 1000);
       setTimeLeft(ANSWER_TIME_LIMIT);
       timerRef.current = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            if (timerRef.current) clearInterval(timerRef.current);
+        const deadline = answerDeadlineRef.current;
+        if (!deadline) return;
+
+        const remainingMs = deadline - Date.now();
+        const nextTimeLeft = Math.max(0, Math.ceil(remainingMs / 1000));
+        setTimeLeft(prev => (prev === nextTimeLeft ? prev : nextTimeLeft));
+
+        if (remainingMs <= 0) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
             timerRef.current = null;
-            const currentVal = answerInputRef.current;
-            if (currentVal.trim()) {
-              const result = submitAnswerRef.current(currentVal);
-              if (result !== 'correct') {
-                setFeedback({ type: 'incorrect', message: `Time's up! "${currentVal}" is incorrect.` });
-              } else {
-                setFeedback(null);
-              }
-            } else {
-              setFeedback({ type: 'incorrect', message: "Time's up! No answer submitted." });
-              submitAnswerRef.current('');
-            }
-            setAnswerInput('');
-            return 0;
           }
-          return prev - 1;
-        });
-      }, 1000);
+          answerDeadlineRef.current = null;
+          submitCurrentAnswer(answerInputRef.current, true);
+        }
+      }, 100);
     } else {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
+      answerDeadlineRef.current = null;
+      setTimeLeft(ANSWER_TIME_LIMIT);
     }
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
-  }, [status]);
+  }, [status, submitCurrentAnswer]);
+
+  useEffect(() => {
+    if (status !== 'answering' && status !== 'prompting') {
+      stopListening();
+    }
+  }, [status, stopListening]);
+
+  useEffect(() => {
+    return () => {
+      stopListening();
+    };
+  }, [stopListening]);
 
   // Focus input when answering or prompting
   useEffect(() => {
@@ -190,75 +303,132 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
     setFeedback(null);
   }, [currentQuestionIndex]);
 
-  if (!currentQuestion) return <div className="p-8">Loading...</div>;
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.code !== 'Space' || event.repeat) return;
+
+      const target = event.target as HTMLElement | null;
+      const tagName = target?.tagName;
+      const isEditable =
+        target?.isContentEditable ||
+        tagName === 'INPUT' ||
+        tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' ||
+        target?.getAttribute('role') === 'textbox';
+
+      if (isEditable) return;
+
+      if (statusRef.current !== 'reading' && statusRef.current !== 'idle' && statusRef.current !== 'paused') {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (statusRef.current === 'reading') {
+        buzz();
+        return;
+      }
+
+      startReading();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [buzz, startReading]);
 
   const handleAnswerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!answerInput.trim()) return;
-    const result = submitAnswer(answerInput);
-    if (result === 'incorrect') {
-       setFeedback({ type: 'incorrect', message: `"${answerInput}" is incorrect.` });
-    } else if (result === 'prompt') {
-       setFeedback({ type: 'prompt', message: promptMessage });
-    } else {
-       setFeedback(null);
-    }
-    setAnswerInput("");
+    if (!answerInputRef.current.trim()) return;
+    submitCurrentAnswer(answerInputRef.current);
   };
 
   const handlePromptSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!answerInput.trim()) return;
-    const result = submitAnswer(answerInput);
-    if (result === 'incorrect') {
-       setFeedback({ type: 'incorrect', message: `"${answerInput}" is incorrect.` });
-    } else if (result === 'prompt') {
-       setFeedback({ type: 'prompt', message: promptMessage });
-    } else {
-       setFeedback(null);
-    }
-    setAnswerInput("");
+    if (!answerInputRef.current.trim()) return;
+    submitCurrentAnswer(answerInputRef.current);
   };
 
   const handleExit = () => {
     stopActiveSpeech();
+    updatePackProgress(packId, currentQuestionIndex);
     router.push('/');
   };
 
-  const startListening = () => {
+  const handleKeepTrying = () => {
+    setFeedback(null);
+    setAnswerDraft("");
+    retryQuestion();
+    startReading();
+  };
+
+  const beginListeningSession = useCallback(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition) as (new () => BrowserSpeechRecognition) | undefined;
     if (!SpeechRecognition) {
+      shouldKeepListeningRef.current = false;
+      setIsListening(false);
       alert("Speech recognition is not supported in this browser.");
       return;
     }
+
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    recognitionRef.current = recognition;
     
     recognition.onstart = () => setIsListening(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setAnswerInput(transcript);
-        const result = submitAnswer(transcript);
-        if (result === 'incorrect') {
-           setFeedback({ type: 'incorrect', message: `"${transcript}" is incorrect.` });
-        } else if (result === 'prompt') {
-           setFeedback({ type: 'prompt', message: promptMessage });
-        } else {
-           setFeedback(null);
-        }
-        setAnswerInput("");
-        setIsListening(false);
+
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map(result => result[0]?.transcript?.trim() || '')
+        .filter(Boolean)
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (transcript) {
+        setAnswerDraft(transcript);
+      }
     };
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
+
+    recognition.onerror = (event) => {
+      recognitionRef.current = null;
+      shouldKeepListeningRef.current = false;
+      setIsListening(false);
+
+      if (event.error === 'aborted') {
+        return;
+      }
+
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        stopListening();
+      }
+    };
+
+    recognition.onend = () => {
+      recognitionRef.current = null;
+      shouldKeepListeningRef.current = false;
+      setIsListening(false);
+    };
     
     recognition.start();
+  }, [setAnswerDraft, stopListening]);
+
+  const startListening = () => {
+    if (shouldKeepListeningRef.current) {
+      stopListening();
+      return;
+    }
+
+    shouldKeepListeningRef.current = true;
+    beginListeningSession();
   };
 
   const getScoringMessage = () => {
+    if (lastResult === 'unanswered') return 'This question timed out and was recorded as unanswered.';
     if (feedback?.type === 'incorrect') return feedback.message;
     if (lastResult === 'power') return 'POWER! ⚡ You buzzed in early and nailed it! +15 points.';
     if (lastResult === 'ten') return 'Excellent timing! You buzzed successfully. +10 points.';
@@ -267,6 +437,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
   };
 
   const getScoringTitle = () => {
+    if (lastResult === 'unanswered') return 'Unanswered';
     if (feedback?.type === 'incorrect') return 'Incorrect';
     if (lastResult === 'power') return 'POWER!';
     if (lastResult === 'ten') return 'Correct';
@@ -279,6 +450,8 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
   const sessionAccuracy = sessionMetrics.questionsAnswered > 0
     ? Math.round(((sessionMetrics.powers + sessionMetrics.tens) / sessionMetrics.questionsAnswered) * 100)
     : 0;
+
+  if (!currentQuestion) return <div className="p-8">Loading...</div>;
 
   return (
     <>
@@ -313,6 +486,44 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
               Question {currentQuestionIndex + 1}
             </h2>
           </div>
+          <div className="flex flex-col gap-3 items-end">
+            <div className="flex items-center gap-2 rounded-full bg-surface-container px-3 py-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Speed</span>
+              <button
+                onClick={decreaseSpeechRate}
+                className="h-7 w-7 rounded-full bg-surface-container-high text-primary font-bold transition-colors hover:bg-surface-dim"
+                type="button"
+              >
+                -
+              </button>
+              <span className="min-w-10 text-center font-headline text-sm font-bold text-primary">{speechRate.toFixed(1)}x</span>
+              <button
+                onClick={increaseSpeechRate}
+                className="h-7 w-7 rounded-full bg-surface-container-high text-primary font-bold transition-colors hover:bg-surface-dim"
+                type="button"
+              >
+                +
+              </button>
+            </div>
+            <div className="flex items-center gap-2 rounded-full bg-surface-container px-3 py-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Volume</span>
+              <button
+                onClick={decreaseSpeechVolume}
+                className="h-7 w-7 rounded-full bg-surface-container-high text-primary font-bold transition-colors hover:bg-surface-dim"
+                type="button"
+              >
+                -
+              </button>
+              <span className="min-w-10 text-center font-headline text-sm font-bold text-primary">{Math.round(speechVolume * 100)}%</span>
+              <button
+                onClick={increaseSpeechVolume}
+                className="h-7 w-7 rounded-full bg-surface-container-high text-primary font-bold transition-colors hover:bg-surface-dim"
+                type="button"
+              >
+                +
+              </button>
+            </div>
+          </div>
         </div>
 
         <section className="bg-surface-container-lowest rounded-xl p-6 md:p-12 shadow-sm flex-1 flex flex-col relative overflow-hidden transition-all duration-300">
@@ -324,6 +535,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
               charIndex={charIndex}
               status={status}
               powerIndex={currentQuestion.power_index}
+              lastResult={lastResult}
             />
             
             {status === 'reading' && (
@@ -381,6 +593,20 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
                     <p className="font-body text-on-surface-variant text-base">
                       {feedback.message} Since there is still question text remaining, you can resume reading or skip to the next question.
                     </p>
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      <button
+                        onClick={handleKeepTrying}
+                        className="bg-primary text-white py-3 px-5 rounded-lg font-bold transition-colors hover:bg-primary/90"
+                      >
+                        Keep trying
+                      </button>
+                      <button
+                        onClick={endQuestion}
+                        className="bg-error text-white py-3 px-5 rounded-lg font-bold transition-colors hover:bg-error/90"
+                      >
+                        End Question
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -440,22 +666,30 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
           </div>
         </section>
 
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-7 gap-3">
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Points</span>
             <span className="font-headline text-2xl font-bold text-on-tertiary-container">{score > 0 ? `+${score}` : score}</span>
           </div>
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
-            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Answered</span>
-            <span className="font-headline text-2xl font-bold">{sessionMetrics.questionsAnswered}</span>
+            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Right</span>
+            <span className="font-headline text-2xl font-bold text-secondary">{sessionMetrics.correctAnswers}</span>
+          </div>
+          <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
+            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Wrong</span>
+            <span className="font-headline text-2xl font-bold text-error">{sessionMetrics.wrongAnswers}</span>
+          </div>
+          <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
+            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Unanswered</span>
+            <span className="font-headline text-2xl font-bold text-amber-500">{sessionMetrics.unanswered}</span>
           </div>
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Powers</span>
             <span className="font-headline text-2xl font-bold text-secondary">{sessionMetrics.powers}</span>
           </div>
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
-            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Negs</span>
-            <span className="font-headline text-2xl font-bold text-error">{sessionMetrics.negs}</span>
+            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Streak</span>
+            <span className="font-headline text-2xl font-bold text-primary">{sessionMetrics.currentStreak}</span>
           </div>
           <div className="bg-surface-container rounded-lg p-4 flex flex-col items-center">
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Accuracy</span>
@@ -482,7 +716,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
                    ref={inputRef}
                    type="text" 
                    value={answerInput}
-                   onChange={e => setAnswerInput(e.target.value)}
+                   onChange={e => setAnswerDraft(e.target.value)}
                    placeholder="Type your answer..."
                    className="flex-1 p-4 border-2 border-outline-variant rounded-xl focus:border-primary focus:outline-none text-lg"
                  />
@@ -502,12 +736,13 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
 
                <button 
                   onClick={startListening}
+                  type="button"
                   className={`w-full flex items-center justify-center gap-3 px-6 py-5 rounded-xl font-bold transition-colors ${
                     isListening ? 'bg-red-600 text-white animate-pulse' : 'bg-red-100 text-red-900 border-2 border-red-200 hover:bg-red-200'
                   }`}
                >
                   <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>mic</span>
-                  {isListening ? 'Listening...' : 'Speak Answer'}
+                  {isListening ? 'Stop Listening' : 'Speak Answer'}
                </button>
             </div>
           </div>
@@ -537,7 +772,7 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
                    ref={promptInputRef}
                    type="text" 
                    value={answerInput}
-                   onChange={e => setAnswerInput(e.target.value)}
+                   onChange={e => setAnswerDraft(e.target.value)}
                    placeholder="Be more specific..."
                    className="flex-1 p-4 border-2 border-secondary/30 rounded-xl focus:border-secondary focus:outline-none text-lg"
                  />
@@ -548,6 +783,21 @@ function QuizPageContent({ questions, packId, initialIndex }: { questions: Quest
                    Submit
                  </button>
                </form>
+               <div className="flex items-center w-full gap-4">
+                 <div className="h-px bg-outline-variant flex-1"></div>
+                 <span className="text-sm font-bold text-outline-variant uppercase tracking-widest">OR</span>
+                 <div className="h-px bg-outline-variant flex-1"></div>
+               </div>
+               <button 
+                  onClick={startListening}
+                  type="button"
+                  className={`w-full flex items-center justify-center gap-3 px-6 py-5 rounded-xl font-bold transition-colors ${
+                    isListening ? 'bg-red-600 text-white animate-pulse' : 'bg-red-100 text-red-900 border-2 border-red-200 hover:bg-red-200'
+                  }`}
+               >
+                  <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>mic</span>
+                  {isListening ? 'Stop Listening' : 'Speak Answer'}
+               </button>
             </div>
           </div>
         </div>
